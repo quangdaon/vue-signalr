@@ -10,5 +10,5 @@ export const VueSignalR: Plugin = {
 		app.provide(SignalRSymbol, service);
 
 		service.init();
-	}
+	},
 };

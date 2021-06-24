@@ -1,6 +1,7 @@
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
-import { App } from "vue";
-import { SignalRConfig } from "./models/SignalRConfig";
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { App } from 'vue';
+import { SignalRConfig } from './models/SignalRConfig';
+import { SignalRMethod } from './models/SignalRMethod';
 
 export class SignalRService {
 	private connection: HubConnection;
@@ -22,11 +23,11 @@ export class SignalRService {
 		});
 	}
 
-	invoke<T>(target: string, message: T) {
+	invoke<T>(target: SignalRMethod<T>, message: T) {
 		if (this.connected) {
-			this.connection.invoke(target, message);
+			this.connection.invoke(target as string, message);
 		} else {
-			this.invokeQueue.push(() => this.connection.invoke(target, message));
+			this.invokeQueue.push(() => this.connection.invoke(target as string, message));
 		}
 	}
 }
