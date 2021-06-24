@@ -1,7 +1,4 @@
-import { VueSignalR } from "./plugin";
-import { SignalRService } from "./service";
-
-export {
-	VueSignalR,
-	SignalRService
-};
+export { VueSignalR } from './plugin';
+export { SignalRService } from './service';
+export { SignalRConfig } from './models/SignalRConfig';
+export { SignalRSymbol } from './symbols';
