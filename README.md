@@ -99,8 +99,8 @@ createApp(App)
 	.use(VueSignalR, {
 		url: "http://localhost:5000/signalr",
 		disconnected() {
-			router.push('/disconnected')
-		}
+			router.push("/disconnected");
+		},
 	})
 	.mount("#app");
 ```
