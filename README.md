@@ -33,30 +33,54 @@ export default {
 };
 ```
 
-### Invoking
+### Events
 
 For type safety, I recommend declaring constant methods like so:
 
 ```typescript
-import { SignalRMethod } from "@quangdao/vue-signalr";
+import {
+	SignalRServerMethod,
+	SignalRClientMethod,
+} from "@quangdao/vue-signalr";
 
-const DoThing: SignalRMethod<MyObject> = "DoThing";
+const SendMessage: SignalRServerMethod<MyObject> = "SendMessage";
+const MessageReceived: SignalRClientMethod<MyObject> = "MessageReceived";
 
 interface MyObject {
 	prop: string;
 }
 ```
 
-Then, in your component:
+#### Receiving Messages
+
+If you used typed method keys mentioned above:
 
 ```typescript
-signalr.invoke(DoThing, { prop: "value" });
+setup() {
+	signalr.on(MessageReceived, (message) => console.log(message.prop));
+}
 ```
 
 Alternative, you can pass in the method name as a string, with an optional type argument for the data:
 
 ```typescript
 // Both of these work:
-signalr.invoke("DoThing", { prop: "value" }); // Data object is untyped
-signalr.invoke<MyObject>("DoThing", { prop: "value" });
+signalr.on("MessageReceived", (message) => console.log(message.prop)); // Data object is untyped
+signalr.on<MyObject>("MessageReceived", (message) => console.log(message.prop));
+```
+
+#### Sending Message
+
+If you used typed method keys mentioned above:
+
+```typescript
+signalr.invoke(SendMessage, { prop: "value" });
+```
+
+Alternative, you can pass in the method name as a string, with an optional type argument for the data:
+
+```typescript
+// Both of these work:
+signalr.invoke("SendMessage", { prop: "value" }); // Data object is untyped
+signalr.invoke<MyObject>("SendMessage", { prop: "value" });
 ```
