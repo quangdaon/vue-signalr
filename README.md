@@ -84,3 +84,23 @@ Alternative, you can pass in the method name as a string, with an optional type 
 signalr.invoke("SendMessage", { prop: "value" }); // Data object is untyped
 signalr.invoke<MyObject>("SendMessage", { prop: "value" });
 ```
+
+### Error Handling
+
+Errors are handled at the app level by passing in a property to the options object. I used a redirect here, but you can probably get creative with some fancy state management or something.
+
+```typescript
+import { createApp } from "vue";
+import { VueSignalR } from "@quangdao/vue-signalr";
+import router from "./router";
+import App from "./App.vue";
+
+createApp(App)
+	.use(VueSignalR, {
+		url: "http://localhost:5000/signalr",
+		disconnected() {
+			router.push('/disconnected')
+		}
+	})
+	.mount("#app");
+```
