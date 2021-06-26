@@ -5,5 +5,13 @@
 	"semi": true,
 	"trailingComma": "none",
 	"singleQuote": true,
-	"quoteProps": "as-needed"
+	"quoteProps": "as-needed",
+	"overrides": [
+		{
+			"files": "README.md",
+			"options": {
+				"useTabs": false
+			}
+		}
+	]
 }

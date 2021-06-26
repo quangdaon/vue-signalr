@@ -12,8 +12,8 @@ import { VueSignalR } from '@quangdao/vue-signalr';
 import App from './App.vue';
 
 createApp(App)
-	.use(VueSignalR, { url: 'http://localhost:5000/signalr' })
-	.mount('#app');
+  .use(VueSignalR, { url: 'http://localhost:5000/signalr' })
+  .mount('#app');
 ```
 
 ## Usage
@@ -25,11 +25,11 @@ import { inject } from 'vue';
 import { SignalRSymbol } from '@quangdao/vue-signalr';
 
 export default {
-	setup() {
-		const signalr = inject(SignalRSymbol);
+  setup() {
+    const signalr = inject(SignalRSymbol);
 
-		if (!signalr) throw new Error('Failed to inject SignalR');
-	}
+    if (!signalr) throw new Error('Failed to inject SignalR');
+  }
 };
 ```
 
@@ -39,15 +39,15 @@ For type safety, I recommend declaring constant methods like so:
 
 ```typescript
 import {
-	SignalRServerMethod,
-	SignalRClientMethod
+  SignalRServerMethod,
+  SignalRClientMethod
 } from '@quangdao/vue-signalr';
 
 const SendMessage: SignalRServerMethod<MyObject> = 'SendMessage';
 const MessageReceived: SignalRClientMethod<MyObject> = 'MessageReceived';
 
 interface MyObject {
-	prop: string;
+  prop: string;
 }
 ```
 
@@ -57,7 +57,7 @@ If you used typed method keys mentioned above:
 
 ```typescript
 setup() {
-	signalr.on(MessageReceived, (message) => console.log(message.prop));
+  signalr.on(MessageReceived, (message) => console.log(message.prop));
 }
 ```
 
@@ -77,10 +77,10 @@ Same rules regarding method keys above apply here.
 
 ```typescript
 setup() {
-	const messageReceivedCallback = (message) => console.log(message.prop);
+  const messageReceivedCallback = (message) => console.log(message.prop);
 
-	signalr.on(MessageReceived, messageReceivedCallback);
-	onBeforeUnmount(() => signalr.off(MessageReceived, messageReceivedCallback));
+  signalr.on(MessageReceived, messageReceivedCallback);
+  onBeforeUnmount(() => signalr.off(MessageReceived, messageReceivedCallback));
 }
 ```
 
@@ -103,11 +103,11 @@ import router from './router';
 import App from './App.vue';
 
 createApp(App)
-	.use(VueSignalR, {
-		url: 'http://localhost:5000/signalr',
-		disconnected() {
-			router.push('/disconnected');
-		}
-	})
-	.mount('#app');
+  .use(VueSignalR, {
+    url: 'http://localhost:5000/signalr',
+    disconnected() {
+      router.push('/disconnected');
+    }
+  })
+  .mount('#app');
 ```
