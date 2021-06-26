@@ -1,5 +1,6 @@
 {
   "name": "@quangdao/vue-signalr",
+	"private": false,
   "version": "0.0.1",
   "description": "SignalR plugin for Vue 3",
   "main": "dist/index.js",
