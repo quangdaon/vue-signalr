@@ -1,7 +1,10 @@
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { App } from 'vue';
 import { SignalRConfig } from './models/SignalRConfig';
-import { SignalRClientMethod, SignalRServerMethod } from './models/SignalRMethods';
+import {
+	SignalRClientMethod,
+	SignalRServerMethod
+} from './models/SignalRMethods';
 
 export class SignalRService {
 	private connection: HubConnection;
@@ -16,20 +19,23 @@ export class SignalRService {
 	}
 
 	init() {
-		this.connection.start().then(() => {
-			this.connected = true;
-			while (this.invokeQueue.length) {
-				const action = this.invokeQueue.shift();
-				action?.call(this);
-			}
+		this.connection
+			.start()
+			.then(() => {
+				this.connected = true;
+				while (this.invokeQueue.length) {
+					const action = this.invokeQueue.shift();
+					action?.call(this);
+				}
 
-			while (this.successQueue.length) {
-				const action = this.successQueue.shift();
-				action?.call(null);
-			}
-		}).catch(() => {
-			this.fail();
-		});
+				while (this.successQueue.length) {
+					const action = this.successQueue.shift();
+					action?.call(null);
+				}
+			})
+			.catch(() => {
+				this.fail();
+			});
 	}
 
 	connectionSuccess(callback: () => void) {
@@ -44,7 +50,9 @@ export class SignalRService {
 		if (this.connected) {
 			this.connection.invoke(target as string, message);
 		} else {
-			this.invokeQueue.push(() => this.connection.invoke(target as string, message));
+			this.invokeQueue.push(() =>
+				this.connection.invoke(target as string, message)
+			);
 		}
 	}
 
