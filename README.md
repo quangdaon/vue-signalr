@@ -76,8 +76,8 @@ Same rules regarding method keys above apply here.
 ```typescript
 setup() {
 	const messageReceivedCallback = (message) => console.log(message.prop);
-	signalr.on(MessageReceived, messageReceivedCallback);
 
+	signalr.on(MessageReceived, messageReceivedCallback);
 	onBeforeUnmount(() => signalr.off(MessageReceived, messageReceivedCallback));
 }
 ```
