@@ -60,6 +60,14 @@ export class SignalRService {
 		this.connection.on(target as string, callback);
 	}
 
+	off<T>(target: SignalRClientMethod<T>, callback?: (arg: T) => void) {
+		if (callback) {
+			this.connection.off(target as string, callback);
+		} else {
+			this.connection.off(target as string);
+		}
+	}
+
 	private fail() {
 		this.options.disconnected?.call(null);
 	}

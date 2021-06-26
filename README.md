@@ -65,24 +65,29 @@ Alternative, you can pass in the method name as a string, with an optional type 
 
 ```typescript
 // Both of these work:
-signalr.on('MessageReceived', (message) => console.log(message.prop)); // Data object is untyped
-signalr.on<MyObject>('MessageReceived', (message) => console.log(message.prop));
+signalr.on('MessageReceived', message => console.log(message.prop)); // Data object is untyped
+signalr.on<MyObject>('MessageReceived', message => console.log(message.prop));
+```
+
+#### Unsubscribing
+
+Same rules regarding method keys above apply here.
+
+```typescript
+setup() {
+	const messageReceivedCallback = (message) => console.log(message.prop);
+	signalr.on(MessageReceived, messageReceivedCallback);
+
+	onBeforeUnmount(() => signalr.off(MessageReceived, messageReceivedCallback));
+}
 ```
 
 #### Sending Message
 
-If you used typed method keys mentioned above:
+Same rules regarding method keys above apply here.
 
 ```typescript
 signalr.invoke(SendMessage, { prop: 'value' });
-```
-
-Alternative, you can pass in the method name as a string, with an optional type argument for the data:
-
-```typescript
-// Both of these work:
-signalr.invoke('SendMessage', { prop: 'value' }); // Data object is untyped
-signalr.invoke<MyObject>('SendMessage', { prop: 'value' });
 ```
 
 ### Error Handling
