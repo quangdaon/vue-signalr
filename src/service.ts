@@ -19,6 +19,7 @@ export class SignalRService {
 	}
 
 	init() {
+		console.log('connected');
 		this.connection
 			.start()
 			.then(() => {
@@ -47,13 +48,21 @@ export class SignalRService {
 	}
 
 	invoke<T>(target: SignalRServerMethod<T>, message: T) {
-		if (this.connected) {
-			this.connection.invoke(target as string, message);
-		} else {
-			this.invokeQueue.push(() =>
-				this.connection.invoke(target as string, message)
-			);
-		}
+		return new Promise((res, rej) => {
+			if (this.connected) {
+				this.connection
+					.invoke(target as string, message)
+					.then(res)
+					.catch(rej);
+			} else {
+				this.invokeQueue.push(() =>
+					this.connection
+						.invoke(target as string, message)
+						.then(res)
+						.catch(rej)
+				);
+			}
+		});
 	}
 
 	on<T>(target: SignalRClientMethod<T>, callback: (arg: T) => void) {
