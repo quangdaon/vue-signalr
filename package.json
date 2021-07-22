@@ -1,7 +1,7 @@
 {
 	"name": "@quangdao/vue-signalr",
 	"private": false,
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "SignalR plugin for Vue 3",
 	"repository": {
 		"type": "git",
