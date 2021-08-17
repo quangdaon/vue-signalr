@@ -8,9 +8,10 @@
 		"url": "git+https://github.com/quangdaon/vue-signalr.git"
 	},
 	"main": "dist/index.js",
+	"module": "dist/index.es.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"build": "tsc"
+		"build": "rollup -c"
 	},
 	"keywords": [
 		"vue",
@@ -24,11 +25,12 @@
 	},
 	"dependencies": {
 		"@microsoft/signalr": "^5.0.7",
-		"ts-loader": "^9.2.3",
-		"vue": "^3.1.2"
+		"ts-loader": "^9.2.3"
 	},
 	"devDependencies": {
 		"eslint": "^6.7.2",
-		"typescript": "~4.1.5"
+		"rollup": "^2.56.2",
+		"rollup-plugin-typescript2": "^0.30.0",
+		"typescript": "^4.1.6"
 	}
 }
