@@ -1,4 +1,4 @@
-export { VueSignalR } from './plugin';
+export { VueSignalR, useSignalR } from './plugin';
 export { SignalRService } from './service';
 export { SignalRConfig } from './models/SignalRConfig';
 export {

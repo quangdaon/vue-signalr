@@ -1,5 +1,5 @@
 import { SignalRConfig } from './models/SignalRConfig';
-import { App, Plugin } from 'vue';
+import { App, inject, Plugin } from 'vue';
 import { SignalRService } from './service';
 import { SignalRSymbol } from './symbols';
 
@@ -12,3 +12,13 @@ export const VueSignalR: Plugin = {
 		service.init();
 	}
 };
+
+export function useSignalR() {
+  const signalr = inject(SignalRSymbol);
+
+  if (!signalr) {
+    throw new Error('Failed to inject SignalR');
+  }
+
+  return signalr;
+}
