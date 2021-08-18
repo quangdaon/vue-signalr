@@ -18,17 +18,15 @@ createApp(App)
 
 ## Usage
 
-To use signalr, you need to inject the service like so:
+This plugin provides a composable function to inject the SignalR service:
 
 ```typescript
 import { inject } from 'vue';
-import { SignalRSymbol } from '@quangdao/vue-signalr';
+import { useSignalR } from '@quangdao/vue-signalr';
 
 export default {
   setup() {
-    const signalr = inject(SignalRSymbol);
-
-    if (!signalr) throw new Error('Failed to inject SignalR');
+    const signalr = useSignalR();
   }
 };
 ```
