@@ -1,5 +1,7 @@
 # Vue SignalR Plugin
 
+[![NPM Install](https://nodei.co/npm/@quangdao/vue-signalr.png?mini=true)](https://www.npmjs.com/package/@quangdao/vue-signalr)
+
 This plugin has only been tested with Vue 3 and TypeScript. Use at your own risk.
 
 ## Installation
