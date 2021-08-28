@@ -1,5 +1,5 @@
-import { SignalRClientMethod } from './../src/models/SignalRMethods';
-import { SignalRConfig } from './../src/models/SignalRConfig';
+import { HubEventToken } from '@/tokens';
+import { SignalRConfig } from '@/config';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { SignalRService } from '@/service';
 

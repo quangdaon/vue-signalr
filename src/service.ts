@@ -1,9 +1,9 @@
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { SignalRConfig } from './models/SignalRConfig';
+import { SignalRConfig } from './config';
 import {
-	SignalRClientMethod,
-	SignalRServerMethod
-} from './models/SignalRMethods';
+	HubEventToken,
+	HubCommandToken
+} from './tokens';
 
 type Action = () => void;
 
@@ -50,7 +50,7 @@ export class SignalRService {
 		}
 	}
 
-	invoke<T>(target: SignalRServerMethod<T>, message: T) {
+	invoke<T>(target: HubCommandToken<T>, message: T) {
 		return new Promise((res, rej) => {
 			if (this.connected) {
 				this.connection
@@ -68,11 +68,11 @@ export class SignalRService {
 		});
 	}
 
-	on<T>(target: SignalRClientMethod<T>, callback: (arg: T) => void) {
+	on<T>(target: HubEventToken<T>, callback: (arg: T) => void) {
 		this.connection.on(target as string, callback);
 	}
 
-	off<T>(target: SignalRClientMethod<T>, callback?: (arg: T) => void) {
+	off<T>(target: HubEventToken<T>, callback?: (arg: T) => void) {
 		if (callback) {
 			this.connection.off(target as string, callback);
 		} else {

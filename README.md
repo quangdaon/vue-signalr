@@ -33,27 +33,28 @@ export default {
 };
 ```
 
-### Events
+### Tokens
 
-For type safety, I recommend declaring constant methods like so:
+For type safety, I recommend declaring constant tokens. As an example:
 
 ```typescript
-import {
-  SignalRServerMethod,
-  SignalRClientMethod
-} from '@quangdao/vue-signalr';
+import { MyObject } from '@/models/my-object';
+import { HubCommandToken, HubEventToken } from '@quangdao/vue-signalr';
 
-const SendMessage: SignalRServerMethod<MyObject> = 'SendMessage';
-const MessageReceived: SignalRClientMethod<MyObject> = 'MessageReceived';
+const SendMessage: HubCommandToken<MyObject> = 'SendMessage';
+const MessageReceived: HubEventToken<MyObject> = 'MessageReceived';
 
+// models/my-object.ts
 interface MyObject {
   prop: string;
 }
 ```
 
+**Note**: In version 0.0.5, SignalRClientMethod and SignalRServerMethod were renamed to HubEventToken and HubCommandToken, respectively. The original names are exported as aliases for compatibility reasons, but will be removed in a final release. Please make sure to update these accordingly if you are upgrading from 0.0.4.
+
 #### Receiving Messages
 
-If you used typed method keys mentioned above:
+If you used tokens mentioned above:
 
 ```typescript
 setup() {
@@ -73,7 +74,7 @@ signalr.on<MyObject>('MessageReceived', message => console.log(message.prop));
 
 Eventually, I want to automatically unbind all subscription within the context of a component when that component is destroyed, but for now I recommend unsubscribing from all of your connections onBeforeUnmount.
 
-Same rules regarding method keys above apply here.
+Same rules regarding tokens above apply here.
 
 ```typescript
 setup() {
@@ -86,7 +87,7 @@ setup() {
 
 #### Sending Message
 
-Same rules regarding method keys above apply here.
+Same rules regarding tokens above apply here.
 
 ```typescript
 signalr.invoke(SendMessage, { prop: 'value' });
