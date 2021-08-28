@@ -1,4 +1,4 @@
-name: NPM Publish
+name: NPM Build
 on:
   pull_request:
     branches: [ main ]
@@ -25,4 +25,4 @@ jobs:
         run: npm run build
 
       - name: Run Tests
-        run: npm test -- --single-run
+        run: npm test -- --single-run --browsers ChromeHeadlessCI

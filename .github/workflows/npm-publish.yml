@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: Run Tests
-        run: npm test -- --single-run
+        run: npm test -- --single-run --browsers ChromeHeadlessCI
 
       - name: Publish to NPM
         uses: JS-DevTools/npm-publish@v1
