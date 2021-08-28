@@ -5,12 +5,14 @@ import {
 	SignalRServerMethod
 } from './models/SignalRMethods';
 
+type Action = () => void;
+
 export class SignalRService {
 	private connection: HubConnection;
 	private connected = false;
 
-	private invokeQueue: (() => void)[] = [];
-	private successQueue: (() => void)[] = [];
+	private invokeQueue: Action[] = [];
+	private successQueue: Action[] = [];
 
 	constructor(
 		private options: SignalRConfig,
@@ -26,13 +28,13 @@ export class SignalRService {
 			.then(() => {
 				this.connected = true;
 				while (this.invokeQueue.length) {
-					const action = this.invokeQueue.shift();
-					action?.call(this);
+					const action = this.invokeQueue.shift() as Action;
+					action.call(this);
 				}
 
 				while (this.successQueue.length) {
-					const action = this.successQueue.shift();
-					action?.call(null);
+					const action = this.successQueue.shift() as Action;
+					action.call(null);
 				}
 			})
 			.catch(() => {

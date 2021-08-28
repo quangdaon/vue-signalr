@@ -1,3 +1,4 @@
+import { SignalRClientMethod } from './../src/models/SignalRMethods';
 import { SignalRConfig } from './../src/models/SignalRConfig';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { SignalRService } from '@/service';
@@ -9,8 +10,15 @@ describe('SignalRService', () => {
 
 	beforeEach(() => {
 		mockOptions = { url: 'fake-url' };
-		mockConnection = jasmine.createSpyObj(['onclose', 'start']);
+		mockConnection = jasmine.createSpyObj([
+			'onclose',
+			'start',
+			'invoke',
+			'on',
+			'off'
+		]);
 		mockConnection.start.and.returnValue(Promise.resolve());
+		mockConnection.invoke.and.returnValue(new Promise(res => res));
 
 		mockBuilder = jasmine.createSpyObj(['withUrl', 'build']);
 		mockBuilder.withUrl.and.returnValue(mockBuilder);
@@ -70,6 +78,104 @@ describe('SignalRService', () => {
 				expect(disconnectSpy).toHaveBeenCalledTimes(1);
 				done();
 			});
+		});
+	});
+
+	describe('connectionSuccess', () => {
+		let callback: jasmine.Spy;
+		let service: SignalRService;
+
+		beforeEach(() => {
+			callback = jasmine.createSpy();
+			service = new SignalRService(mockOptions, mockBuilder);
+		});
+
+		it('should call callback immediately if connected', done => {
+			service.init();
+
+			setTimeout(() => {
+				service.connectionSuccess(callback);
+				expect(callback).toHaveBeenCalledTimes(1);
+				done();
+			});
+		});
+
+		it('should call callback after connection', done => {
+			service.connectionSuccess(callback);
+			expect(callback).not.toHaveBeenCalled();
+
+			service.init();
+
+			setTimeout(() => {
+				expect(callback).toHaveBeenCalledTimes(1);
+				done();
+			});
+		});
+	});
+
+	describe('invoke', () => {
+		const message = `Hey ho, let's go!`;
+		let service: SignalRService;
+
+		beforeEach(() => {
+			service = new SignalRService(mockOptions, mockBuilder);
+		});
+
+		it('should invoke immediately if connected', done => {
+			service.init();
+
+			setTimeout(() => {
+				service.invoke('Command', message);
+				expect(mockConnection.invoke).toHaveBeenCalledWith('Command', message);
+				done();
+			});
+		});
+
+		it('should wait to invoke until after a successful connection', done => {
+			service.invoke('Command', message);
+			expect(mockConnection.invoke).not.toHaveBeenCalled();
+
+			service.init();
+			setTimeout(() => {
+				expect(mockConnection.invoke).toHaveBeenCalledWith('Command', message);
+				done();
+			});
+		});
+	});
+
+	describe('on', () => {
+		let service: SignalRService;
+
+		beforeEach(() => {
+			service = new SignalRService(mockOptions, mockBuilder);
+		});
+
+		it('should call connection on method', () => {
+			const callback = () => {};
+			service.on('Method', callback);
+
+			expect(mockConnection.on).toHaveBeenCalledOnceWith('Method', callback);
+		});
+	});
+
+	describe('off', () => {
+		let service: SignalRService;
+
+		beforeEach(() => {
+			service = new SignalRService(mockOptions, mockBuilder);
+		});
+
+		it('should call connection off method', () => {
+			const callback = () => {};
+			service.off('Method', callback);
+
+			expect(mockConnection.off).toHaveBeenCalledOnceWith('Method', callback);
+		});
+
+		it('should allow no callback', () => {
+			service.off('Method');
+
+			expect(mockConnection.off as any).toHaveBeenCalledOnceWith('Method');
 		});
 	});
 });
