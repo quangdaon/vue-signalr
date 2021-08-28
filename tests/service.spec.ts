@@ -1,4 +1,3 @@
-import { HubEventToken } from '@/tokens';
 import { SignalRConfig } from '@/config';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { SignalRService } from '@/service';
@@ -20,7 +19,7 @@ describe('SignalRService', () => {
 		mockConnection.start.and.returnValue(Promise.resolve());
 		mockConnection.invoke.and.returnValue(new Promise(res => res));
 
-		mockBuilder = jasmine.createSpyObj(['withUrl', 'build']);
+		mockBuilder = jasmine.createSpyObj(['withUrl', 'withAutomaticReconnect', 'build']);
 		mockBuilder.withUrl.and.returnValue(mockBuilder);
 		mockBuilder.build.and.returnValue(mockConnection);
 	});
@@ -33,6 +32,17 @@ describe('SignalRService', () => {
 	it('should connect to URL from configuration', () => {
 		new SignalRService(mockOptions, mockBuilder);
 		expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith('fake-url');
+	});
+
+	it('should not enable automatic reconnections by default', () => {
+		new SignalRService(mockOptions, mockBuilder);
+		expect(mockBuilder.withAutomaticReconnect).not.toHaveBeenCalled();
+	});
+
+	it('should enable automatic reconnections', () => {
+		mockOptions.automaticReconnect = true;
+		new SignalRService(mockOptions, mockBuilder);
+		expect(mockBuilder.withAutomaticReconnect).toHaveBeenCalledTimes(1);
 	});
 
 	it('should call disconnect callback on close', () => {
