@@ -1,0 +1,28 @@
+name: NPM Publish
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Install Peer Dependencies
+        run: npm i vue@3.1.2 @microsoft/signalr@5.0.7 --no-save
+
+      - name: Build Package
+        run: npm run build
+
+      - name: Run Tests
+        run: npm test -- --single-run
