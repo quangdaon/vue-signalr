@@ -5,7 +5,7 @@ import { SignalRSymbol } from './symbols';
 
 export const VueSignalR: Plugin = {
 	install(app: App, options: SignalRConfig) {
-		const service = new SignalRService(app, options);
+		const service = new SignalRService(options);
 
 		app.provide(SignalRSymbol, service);
 

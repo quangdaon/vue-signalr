@@ -1,5 +1,4 @@
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { App } from 'vue';
 import { SignalRConfig } from './models/SignalRConfig';
 import {
 	SignalRClientMethod,
@@ -13,13 +12,12 @@ export class SignalRService {
 	private invokeQueue: (() => void)[] = [];
 	private successQueue: (() => void)[] = [];
 
-	constructor(private app: App, private options: SignalRConfig) {
+	constructor(private options: SignalRConfig) {
 		this.connection = new HubConnectionBuilder().withUrl(options.url).build();
 		this.connection.onclose(() => this.fail());
 	}
 
 	init() {
-		console.log('connected');
 		this.connection
 			.start()
 			.then(() => {

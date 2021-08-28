@@ -21,11 +21,8 @@
 	"author": "Quangdao Nguyen",
 	"license": "ISC",
 	"peerDependencies": {
-		"vue": "^3.1.2"
-	},
-	"dependencies": {
 		"@microsoft/signalr": "^5.0.7",
-		"ts-loader": "^9.2.3"
+		"vue": "^3.1.2"
 	},
 	"devDependencies": {
 		"eslint": "^6.7.2",

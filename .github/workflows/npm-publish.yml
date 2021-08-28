@@ -20,7 +20,7 @@ jobs:
         run: npm ci
 
       - name: Install Peer Dependencies
-        run: npm i vue@3.1.2 --no-save
+        run: npm i vue@3.1.2 @microsoft/signalr@5.0.7 --no-save
 
       - name: Build Package
         run: npm run build
