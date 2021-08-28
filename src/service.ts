@@ -12,8 +12,11 @@ export class SignalRService {
 	private invokeQueue: (() => void)[] = [];
 	private successQueue: (() => void)[] = [];
 
-	constructor(private options: SignalRConfig) {
-		this.connection = new HubConnectionBuilder().withUrl(options.url).build();
+	constructor(
+		private options: SignalRConfig,
+		connectionBuilder: HubConnectionBuilder
+	) {
+		this.connection = connectionBuilder.withUrl(options.url).build();
 		this.connection.onclose(() => this.fail());
 	}
 

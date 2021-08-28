@@ -12,13 +12,13 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": "./src/"
+    "baseUrl": "."
   },
   "include": [
-    "src/index.ts",
+    "src/index.ts"
   ],
   "exclude": [
-    "node_modules",
-    "dist"
+    "./node_modules",
+    "./dist"
   ]
 }
