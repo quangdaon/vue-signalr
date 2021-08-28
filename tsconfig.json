@@ -12,10 +12,15 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": "."
+    "baseUrl": "./",
+		"paths": {
+			"@/*": ["src/*"]
+		}
   },
   "include": [
-    "src/index.ts"
+    "src/index.ts",
+    "src/**/*.ts",
+    "tests/**/*.spec.ts"
   ],
   "exclude": [
     "./node_modules",

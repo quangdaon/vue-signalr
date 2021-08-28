@@ -4,7 +4,7 @@ import { SignalRService } from './service';
 import { SignalRSymbol } from './symbols';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 
-export const VueSignalR: Plugin = {
+export const VueSignalR = {
 	install(app: App, options: SignalRConfig) {
 		const service = new SignalRService(options, new HubConnectionBuilder());
 
