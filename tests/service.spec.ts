@@ -13,6 +13,7 @@ describe('SignalRService', () => {
 			'onclose',
 			'start',
 			'invoke',
+			'send',
 			'on',
 			'off'
 		]);
@@ -148,6 +149,36 @@ describe('SignalRService', () => {
 			service.init();
 			setTimeout(() => {
 				expect(mockConnection.invoke).toHaveBeenCalledWith('Command', message);
+				done();
+			});
+		});
+	});
+
+	describe('send', () => {
+		const message = 'We are the champions, my friends';
+		let service: SignalRService;
+
+		beforeEach(() => {
+			service = new SignalRService(mockOptions, mockBuilder);
+		});
+
+		it('should send immediately if connected', done => {
+			service.init();
+
+			setTimeout(() => {
+				service.send('Command', message);
+				expect(mockConnection.send).toHaveBeenCalledWith('Command', message);
+				done();
+			});
+		});
+
+		it('should wait to send until after a successful connection', done => {
+			service.send('Command', message);
+			expect(mockConnection.send).not.toHaveBeenCalled();
+
+			service.init();
+			setTimeout(() => {
+				expect(mockConnection.send).toHaveBeenCalledWith('Command', message);
 				done();
 			});
 		});
