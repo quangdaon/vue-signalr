@@ -1,5 +1,5 @@
-import { SignalRConfig } from './models/SignalRConfig';
-import { App, inject, Plugin } from 'vue';
+import { SignalRConfig } from './config';
+import { App, inject } from 'vue';
 import { SignalRService } from './service';
 import { SignalRSymbol } from './symbols';
 import { HubConnectionBuilder } from '@microsoft/signalr';

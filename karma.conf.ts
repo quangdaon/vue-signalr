@@ -12,7 +12,7 @@ module.exports = function (config) {
 			},
 			tsconfig: './tsconfig.spec.json'
 		},
-		browsers: ['Chrome', 'ChromeHeadless', 'ChromeHeadlessCI'],
+		browsers: ['Chrome'],
 		reporters: ['progress', 'coverage', 'karma-typescript'],
 		customLaunchers: {
 			ChromeHeadlessCI: {

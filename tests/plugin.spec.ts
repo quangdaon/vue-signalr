@@ -1,6 +1,6 @@
-import { SignalRSymbol } from './../src/symbols';
+import { SignalRSymbol } from '@/symbols';
 import { useSignalR, VueSignalR } from '@/plugin';
-import { SignalRConfig } from '@/models/SignalRConfig';
+import { SignalRConfig } from '@/config';
 import * as Vue from 'vue';
 import * as Services from '@/service';
 
