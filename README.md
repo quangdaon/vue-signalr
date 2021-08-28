@@ -61,7 +61,7 @@ interface MyObject {
 }
 ```
 
-**Note**: In version 0.0.5, SignalRClientMethod and SignalRServerMethod were renamed to HubEventToken and HubCommandToken, respectively. The original names are exported as aliases for compatibility reasons, but will be removed in a final release. Please make sure to update these accordingly if you are upgrading from 0.0.4.
+**Note**: In version 0.0.6, SignalRClientMethod and SignalRServerMethod were renamed to HubEventToken and HubCommandToken, respectively. The original names are exported as aliases for compatibility reasons, but will be removed in a final release. Please make sure to update these accordingly if you are upgrading from 0.0.5.
 
 #### Receiving Messages
 
