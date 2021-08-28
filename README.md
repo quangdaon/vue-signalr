@@ -18,6 +18,17 @@ createApp(App)
   .mount('#app');
 ```
 
+### Configuration
+
+The plugin accept a configuration object with the following values:
+
+| Property           | Required | Description                                     |
+| ------------------ | -------- | ----------------------------------------------- |
+| url                | Yes      | The address to your SignalR server              |
+| disconnected       | No       | Callback to call when the connection is severed |
+| automaticReconnect | No       | Whether to enable automatic reconnections       |
+
+
 ## Usage
 
 This plugin provides a composable function to inject the SignalR service:
