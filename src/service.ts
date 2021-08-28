@@ -67,6 +67,16 @@ export class SignalRService {
 		});
 	}
 
+	send<T>(target: HubCommandToken<T>, message: T) {
+		if (this.connected) {
+			this.connection.send(target as string, message);
+		} else {
+			this.invokeQueue.push(() =>
+				this.connection.send(target as string, message)
+			);
+		}
+	}
+
 	on<T>(target: HubEventToken<T>, callback: (arg: T) => void) {
 		this.connection.on(target as string, callback);
 	}

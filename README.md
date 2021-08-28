@@ -98,12 +98,15 @@ setup() {
 
 #### Sending Message
 
-Same rules regarding tokens above apply here.
+To send a message to the server, you can either `invoke` a command if you are expecting a response, or `send` a command without waiting for an acknowledgement. Same rules regarding tokens above apply to both methods.
 
 ```typescript
-signalr.invoke(SendMessage, { prop: 'value' });
+signalr.send(SendMessage, { prop: 'value' });
 ```
 
+```typescript
+signalr.invoke(SendMessage, { prop: 'value' }).then(response => doSomethingWith(response));
+```
 ### Error Handling
 
 Errors are handled at the app level by passing in a property to the options object. I used a redirect here, but you can probably get creative with some fancy state management or something.
