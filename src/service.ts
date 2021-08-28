@@ -1,9 +1,6 @@
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { SignalRConfig } from './config';
-import {
-	HubEventToken,
-	HubCommandToken
-} from './tokens';
+import { HubEventToken, HubCommandToken } from './tokens';
 
 type Action = () => void;
 
@@ -18,7 +15,9 @@ export class SignalRService {
 		private options: SignalRConfig,
 		connectionBuilder: HubConnectionBuilder
 	) {
-		this.connection = connectionBuilder.withUrl(options.url).build();
+		connectionBuilder.withUrl(options.url);
+		if (options.automaticReconnect) connectionBuilder.withAutomaticReconnect();
+		this.connection = connectionBuilder.build();
 		this.connection.onclose(() => this.fail());
 	}
 
