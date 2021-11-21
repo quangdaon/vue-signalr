@@ -32,7 +32,7 @@ describe('SignalRService', () => {
 
 	it('should connect to URL from configuration', () => {
 		new SignalRService(mockOptions, mockBuilder);
-		expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith('fake-url');
+		expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith('fake-url', jasmine.anything());
 	});
 
 	it('should not enable automatic reconnections by default', () => {
