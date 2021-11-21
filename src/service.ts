@@ -49,31 +49,29 @@ export class SignalRService {
 		}
 	}
 
-	invoke<T>(target: HubCommandToken<T>, message: T) {
+	invoke<T>(target: HubCommandToken<T>, message?: T) {
+		const invoke = () => message ?
+			this.connection.invoke(target as string, message) :
+			this.connection.invoke(target as string);
+
 		return new Promise((res, rej) => {
 			if (this.connected) {
-				this.connection
-					.invoke(target as string, message)
-					.then(res)
-					.catch(rej);
+				invoke().then(res).catch(rej);
 			} else {
-				this.invokeQueue.push(() =>
-					this.connection
-						.invoke(target as string, message)
-						.then(res)
-						.catch(rej)
-				);
+				this.invokeQueue.push(() => invoke().then(res).catch(rej));
 			}
 		});
 	}
 
-	send<T>(target: HubCommandToken<T>, message: T) {
+	send<T>(target: HubCommandToken<T>, message?: T) {
+		const send = () => message ?
+			this.connection.send(target as string, message) :
+			this.connection.send(target as string);
+
 		if (this.connected) {
-			this.connection.send(target as string, message);
+			send();
 		} else {
-			this.invokeQueue.push(() =>
-				this.connection.send(target as string, message)
-			);
+			this.invokeQueue.push(send);
 		}
 	}
 
