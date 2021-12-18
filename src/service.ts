@@ -31,6 +31,8 @@ export class SignalRService {
 		if (options.automaticReconnect) connectionBuilder.withAutomaticReconnect();
 
 		this.connection = connectionBuilder.build();
+		this.connection.onreconnected(() => this.reconnect());
+		this.connection.onreconnecting(() => this.fail());
 		this.connection.onclose(() => this.fail());
 	}
 
@@ -105,6 +107,10 @@ export class SignalRService {
 
 	getConnectionStatus() {
 		return this.connected;
+	}
+
+	private reconnect() {
+		this.connected.value = true;
 	}
 
 	private fail() {

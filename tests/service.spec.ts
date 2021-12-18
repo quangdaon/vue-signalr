@@ -10,6 +10,8 @@ describe('SignalRService', () => {
 	beforeEach(() => {
 		mockOptions = { url: 'fake-url' };
 		mockConnection = jasmine.createSpyObj([
+			'onreconnected',
+			'onreconnecting',
 			'onclose',
 			'start',
 			'invoke',
@@ -77,7 +79,6 @@ describe('SignalRService', () => {
 	});
 
 	it('should set status to false on close', () => {
-		mockOptions.disconnected = undefined;
 		const closeSpy = jasmine.createSpy();
 
 		mockConnection.onclose.and.callFake(callback => {
@@ -92,8 +93,25 @@ describe('SignalRService', () => {
 
 		status.value = true;
 		closeSpy();
+	});
 
-		expect(() => new SignalRService(mockOptions, mockBuilder)).not.toThrow();
+	it('should set status to true on reconnect', () => {
+		const reconnectSpy = jasmine.createSpy();
+
+		mockConnection.onreconnected.and.callFake(callback => {
+			reconnectSpy.and.callFake(() => {
+				callback();
+				expect(status.value).toBeTrue();
+			});
+		});
+
+		const service = new SignalRService(mockOptions, mockBuilder);
+		const status = service.getConnectionStatus();
+
+		status.value = false;
+		reconnectSpy();
+
+		expect(mockConnection.onreconnected).toHaveBeenCalledTimes(1);
 	});
 
 	describe('init', () => {
