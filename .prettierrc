@@ -6,6 +6,7 @@
 	"trailingComma": "none",
 	"singleQuote": true,
 	"quoteProps": "as-needed",
+	"endOfLine": "auto",
 	"overrides": [
 		{
 			"files": "README.md",

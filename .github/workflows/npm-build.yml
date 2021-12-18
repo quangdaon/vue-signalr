@@ -1,7 +1,7 @@
 name: NPM Build
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, release/* ]
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
       - name: Setup NodeJS
         uses: actions/setup-node@v1
         with:
-          node-version: 10
+          node-version: 16
 
       - name: Install Dependencies
         run: npm install

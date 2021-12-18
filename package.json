@@ -1,7 +1,7 @@
 {
 	"name": "@quangdao/vue-signalr",
 	"private": false,
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"description": "SignalR plugin for Vue 3",
 	"repository": {
 		"type": "git",
@@ -23,8 +23,8 @@
 	"author": "Quangdao Nguyen",
 	"license": "ISC",
 	"peerDependencies": {
-		"@microsoft/signalr": "^5.0.7",
-		"vue": "^3.1.2"
+		"@microsoft/signalr": ">=5 <7",
+		"vue": ">=3 <4"
 	},
 	"devDependencies": {
 		"@types/jasmine": "^3.8.2",
