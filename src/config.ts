@@ -1,10 +1,10 @@
-import { HubConnectionBuilder } from '@microsoft/signalr';
+import { HubConnectionBuilder, IHttpConnectionOptions } from '@microsoft/signalr';
 
 export interface SignalRConfig {
 	url: string;
 	disconnected?: () => void;
 	reconnected?: () => void;
 	accessTokenFactory?: () => string | Promise<string>;
-	onBeforeBuild?: (builder: HubConnectionBuilder) => void;
+	prebuild?: (builder: HubConnectionBuilder, options: IHttpConnectionOptions) => void;
 	automaticReconnect?: boolean;
 }

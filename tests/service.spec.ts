@@ -2,6 +2,7 @@ import { SignalRConfig } from '@/config';
 import {
 	HubConnection,
 	HubConnectionBuilder,
+	IHttpConnectionOptions,
 	LogLevel
 } from '@microsoft/signalr';
 import { SignalRService } from '@/service';
@@ -91,13 +92,37 @@ describe('SignalRService', () => {
 		});
 
 		it('should allow hooking into the builder', () => {
-			mockOptions.onBeforeBuild = (builder: HubConnectionBuilder) => {
+			mockOptions.prebuild = (
+				builder: HubConnectionBuilder,
+				_: IHttpConnectionOptions
+			) => {
 				builder.configureLogging(LogLevel.Information);
 			};
 
 			new SignalRService(mockOptions, mockBuilder);
 			expect(mockBuilder.configureLogging).toHaveBeenCalledOnceWith(
 				LogLevel.Information
+			);
+		});
+
+		it('should allow configuration of the builder options', () => {
+			mockOptions.prebuild = (
+				_: HubConnectionBuilder,
+				options: IHttpConnectionOptions
+			) => {
+				options.headers = {
+					boop: 'beep'
+				};
+			};
+
+			new SignalRService(mockOptions, mockBuilder);
+			expect(mockBuilder.withUrl).toHaveBeenCalledOnceWith(
+				jasmine.any(String),
+				jasmine.objectContaining({
+					headers: {
+						boop: 'beep'
+					}
+				})
 			);
 		});
 
@@ -123,6 +148,7 @@ describe('SignalRService', () => {
 
 			expect(() => new SignalRService(mockOptions, mockBuilder)).not.toThrow();
 		});
+
 		it('should set status to false on close', () => {
 			const closeSpy = jasmine.createSpy();
 

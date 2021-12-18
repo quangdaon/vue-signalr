@@ -27,10 +27,11 @@ export class SignalRService {
 			connOptions.accessTokenFactory = options.accessTokenFactory;
 		}
 
+		if (options.prebuild) options.prebuild(connectionBuilder, connOptions);
+
 		connectionBuilder.withUrl(options.url, connOptions);
 
 		if (options.automaticReconnect) connectionBuilder.withAutomaticReconnect();
-		if (options.onBeforeBuild) options.onBeforeBuild(connectionBuilder);
 
 		this.connection = connectionBuilder.build();
 		this.connection.onreconnected(() => this.reconnect());
