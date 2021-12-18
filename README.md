@@ -22,12 +22,29 @@ createApp(App)
 
 The plugin accept a configuration object with the following values:
 
-| Property           | Required | Description                                     |
-| ------------------ | -------- | ----------------------------------------------- |
-| url                | Yes      | The address to your SignalR server              |
-| disconnected       | No       | Callback to call when the connection is severed |
-| automaticReconnect | No       | Whether to enable automatic reconnections       |
+| Property           | Required | Description                                                     |
+| ------------------ | -------- | --------------------------------------------------------------- |
+| url                | Yes      | The address to your SignalR server                              |
+| disconnected       | No       | Callback to trigger when the connection is lost                 |
+| reconnected        | No       | Callback to trigger when the connection is reestablished        |
+| accessTokenFactory | No       | Factory that returns an access token to pas to the hub          |
+| prebuild           | No       | Hook to modify the connection build before the connect is built |
+| automaticReconnect | No       | When true, the connect will automatically attempt to reconnect  |
 
+### Using SignalR Directly
+
+If the built-in configuration options are not enough for you, Vue SignalR exposes both the connection and the builder itself. The connection is accessible through `signalr.connection` (see [Usage](#usage) below). In order to hook into the builder, you need to pass a `prebuild` method in the configuration object upon initialization. For example:
+
+```typescript
+createApp(App)
+  .use(VueSignalR, {
+    url: 'http://localhost:5000/signalr',
+    prebuild(builder: HubConnectionBuilder) {
+      builder.configureLogging(LogLevel.Information);
+    }
+  })
+  .mount('#app');
+```
 
 ## Usage
 
@@ -105,18 +122,16 @@ signalr.send(SendMessage, { prop: 'value' });
 ```
 
 ```typescript
-signalr.invoke(SendMessage, { prop: 'value' }).then(response => doSomethingWith(response));
+signalr
+  .invoke(SendMessage, { prop: 'value' })
+  .then(response => doSomethingWith(response));
 ```
+
 ### Error Handling
 
 Errors are handled at the app level by passing in a property to the options object. I used a redirect here, but you can probably get creative with some fancy state management or something.
 
 ```typescript
-import { createApp } from 'vue';
-import { VueSignalR } from '@quangdao/vue-signalr';
-import router from './router';
-import App from './App.vue';
-
 createApp(App)
   .use(VueSignalR, {
     url: 'http://localhost:5000/signalr',
@@ -126,3 +141,14 @@ createApp(App)
   })
   .mount('#app');
 ```
+
+You can also attach an event listener to the connection itself, however, be aware that because this is the global connection object used by the service, the listener will not be unbound when the component is destroyed:
+
+```typescript
+setup() {
+  const signalr = useSignalR();
+  signalr.connection.onclose(() => customCallback());
+}
+```
+
+Alternatively, if you just need a flag to check whether the you are still connected, the service exposes a ref through `signalr.getConnectionStatus()`.

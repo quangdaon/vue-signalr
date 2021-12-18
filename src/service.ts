@@ -26,44 +26,31 @@ export class SignalRService {
 		private options: SignalRConfig,
 		connectionBuilder: HubConnectionBuilder
 	) {
-		const connOptions: IHttpConnectionOptions = {};
-
-		if (options.accessTokenFactory) {
-			connOptions.accessTokenFactory = options.accessTokenFactory;
-		}
-
-		if (options.prebuild) options.prebuild(connectionBuilder, connOptions);
-
-		connectionBuilder.withUrl(options.url, connOptions);
-
-		if (options.automaticReconnect) connectionBuilder.withAutomaticReconnect();
-
-		this.connection = connectionBuilder.build();
-		this.connection.onreconnected(() => this.reconnect());
-		this.connection.onreconnecting(() => this.fail());
-		this.connection.onclose(() => this.fail());
+		const connection = this.buildConnection(connectionBuilder);
+		this.configureConnection(connection);
+		this.connection = connection;
 	}
 
 	/** Start the connection; called automatically when the plugin is registered */
-	init() {
-		this.connection
-			.start()
-			.then(() => {
-				this.initiated = true;
-				this.connected.value = true;
-				while (this.invokeQueue.length) {
-					const action = this.invokeQueue.shift() as Action;
-					action.call(this);
-				}
+	async init() {
+		try {
+			await this.connection.start();
 
-				while (this.successQueue.length) {
-					const action = this.successQueue.shift() as Action;
-					action.call(null);
-				}
-			})
-			.catch(() => {
-				this.fail();
-			});
+			this.initiated = true;
+			this.connected.value = true;
+
+			while (this.invokeQueue.length) {
+				const action = this.invokeQueue.shift() as Action;
+				action.call(this);
+			}
+
+			while (this.successQueue.length) {
+				const action = this.successQueue.shift() as Action;
+				action.call(null);
+			}
+		} catch {
+			this.fail();
+		}
 	}
 
 	/** Set a callback to trigger when a connection to the hub is successfully established */
@@ -142,6 +129,29 @@ export class SignalRService {
 	/** Get a reactive connection status */
 	getConnectionStatus() {
 		return this.connected;
+	}
+
+	private buildConnection(builder: HubConnectionBuilder) {
+		const options = this.options;
+		const connOptions: IHttpConnectionOptions = {};
+
+		if (options.accessTokenFactory) {
+			connOptions.accessTokenFactory = options.accessTokenFactory;
+		}
+
+		if (options.prebuild) options.prebuild(builder, connOptions);
+
+		builder.withUrl(options.url, connOptions);
+
+		if (options.automaticReconnect) builder.withAutomaticReconnect();
+
+		return builder.build();
+	}
+
+	private configureConnection(connection: HubConnection) {
+		connection.onreconnected(() => this.reconnect());
+		connection.onreconnecting(() => this.fail());
+		connection.onclose(() => this.fail());
 	}
 
 	private reconnect() {

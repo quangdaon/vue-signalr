@@ -4,7 +4,7 @@ import {
 } from '@microsoft/signalr';
 
 export interface SignalRConfig {
-	/** The url of the hub to connect to */
+	/** The address to your SignalR server */
 	url: string;
 
 	/** Callback to trigger when the connection is lost */
@@ -36,6 +36,6 @@ export interface SignalRConfig {
 		options: IHttpConnectionOptions
 	) => void;
 
-	/** When true, the connect will automatically attempt to reconnect */
+	/** When true, the connection will automatically attempt to reconnect */
 	automaticReconnect?: boolean;
 }
