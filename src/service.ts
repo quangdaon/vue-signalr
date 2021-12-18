@@ -10,7 +10,7 @@ type Action = () => void;
 
 export class SignalRService {
 	private connection: HubConnection;
-	private connected = false;
+	private initiated = false;
 
 	private invokeQueue: Action[] = [];
 	private successQueue: Action[] = [];
@@ -35,7 +35,7 @@ export class SignalRService {
 		this.connection
 			.start()
 			.then(() => {
-				this.connected = true;
+				this.initiated = true;
 				while (this.invokeQueue.length) {
 					const action = this.invokeQueue.shift() as Action;
 					action.call(this);
@@ -52,7 +52,7 @@ export class SignalRService {
 	}
 
 	connectionSuccess(callback: () => void) {
-		if (this.connected) {
+		if (this.initiated) {
 			callback();
 		} else {
 			this.successQueue.push(callback);
@@ -66,7 +66,7 @@ export class SignalRService {
 				: this.connection.invoke(target as string);
 
 		return new Promise((res, rej) => {
-			if (this.connected) {
+			if (this.initiated) {
 				invoke().then(res).catch(rej);
 			} else {
 				this.invokeQueue.push(() => invoke().then(res).catch(rej));
@@ -80,7 +80,7 @@ export class SignalRService {
 				? this.connection.send(target as string, message)
 				: this.connection.send(target as string);
 
-		if (this.connected) {
+		if (this.initiated) {
 			send();
 		} else {
 			this.invokeQueue.push(send);
