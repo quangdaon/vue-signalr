@@ -95,6 +95,20 @@ describe('SignalRService', () => {
 		closeSpy();
 	});
 
+	it('should call reconnect callback on reconnect', () => {
+		const reconnectSpy = jasmine.createSpy();
+		mockOptions.reconnected = reconnectSpy;
+		mockConnection.onreconnected.and.callFake(callback => {
+			callback();
+
+			expect(reconnectSpy).toHaveBeenCalledTimes(1);
+		});
+
+		new SignalRService(mockOptions, mockBuilder);
+
+		expect(mockConnection.onreconnected).toHaveBeenCalledTimes(1);
+	});
+
 	it('should set status to true on reconnect', () => {
 		const reconnectSpy = jasmine.createSpy();
 
@@ -110,8 +124,6 @@ describe('SignalRService', () => {
 
 		status.value = false;
 		reconnectSpy();
-
-		expect(mockConnection.onreconnected).toHaveBeenCalledTimes(1);
 	});
 
 	describe('init', () => {

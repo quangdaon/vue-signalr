@@ -111,6 +111,7 @@ export class SignalRService {
 
 	private reconnect() {
 		this.connected.value = true;
+		this.options.reconnected?.call(null);
 	}
 
 	private fail() {
