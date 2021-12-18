@@ -20,7 +20,11 @@ describe('SignalRService', () => {
 		mockConnection.start.and.returnValue(Promise.resolve());
 		mockConnection.invoke.and.returnValue(new Promise(res => res));
 
-		mockBuilder = jasmine.createSpyObj(['withUrl', 'withAutomaticReconnect', 'build']);
+		mockBuilder = jasmine.createSpyObj([
+			'withUrl',
+			'withAutomaticReconnect',
+			'build'
+		]);
 		mockBuilder.withUrl.and.returnValue(mockBuilder);
 		mockBuilder.build.and.returnValue(mockConnection);
 	});
@@ -32,7 +36,10 @@ describe('SignalRService', () => {
 
 	it('should connect to URL from configuration', () => {
 		new SignalRService(mockOptions, mockBuilder);
-		expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith('fake-url', jasmine.anything());
+		expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith(
+			'fake-url',
+			jasmine.anything()
+		);
 	});
 
 	it('should not enable automatic reconnections by default', () => {
@@ -69,6 +76,26 @@ describe('SignalRService', () => {
 		expect(() => new SignalRService(mockOptions, mockBuilder)).not.toThrow();
 	});
 
+	it('should set status to false on close', () => {
+		mockOptions.disconnected = undefined;
+		const closeSpy = jasmine.createSpy();
+
+		mockConnection.onclose.and.callFake(callback => {
+			closeSpy.and.callFake(() => {
+				callback();
+				expect(status.value).toBeFalse();
+			});
+		});
+
+		const service = new SignalRService(mockOptions, mockBuilder);
+		const status = service.getConnectionStatus();
+
+		status.value = true;
+		closeSpy();
+
+		expect(() => new SignalRService(mockOptions, mockBuilder)).not.toThrow();
+	});
+
 	describe('init', () => {
 		it('should start the connection', () => {
 			const service = new SignalRService(mockOptions, mockBuilder);
@@ -87,6 +114,19 @@ describe('SignalRService', () => {
 
 			setTimeout(() => {
 				expect(disconnectSpy).toHaveBeenCalledTimes(1);
+				done();
+			});
+		});
+
+		it('should set connection status to true', done => {
+			const service = new SignalRService(mockOptions, mockBuilder);
+			const connected = service.getConnectionStatus();
+
+			expect(connected.value).toBeFalse();
+			service.init();
+
+			setTimeout(() => {
+				expect(connected.value).toBeTrue();
 				done();
 			});
 		});

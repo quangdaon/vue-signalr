@@ -3,6 +3,7 @@ import {
 	HubConnectionBuilder,
 	IHttpConnectionOptions
 } from '@microsoft/signalr';
+import { ref } from 'vue';
 import { SignalRConfig } from './config';
 import { HubEventToken, HubCommandToken } from './tokens';
 
@@ -11,6 +12,7 @@ type Action = () => void;
 export class SignalRService {
 	private connection: HubConnection;
 	private initiated = false;
+	private connected = ref(false);
 
 	private invokeQueue: Action[] = [];
 	private successQueue: Action[] = [];
@@ -27,6 +29,7 @@ export class SignalRService {
 
 		connectionBuilder.withUrl(options.url, connOptions);
 		if (options.automaticReconnect) connectionBuilder.withAutomaticReconnect();
+
 		this.connection = connectionBuilder.build();
 		this.connection.onclose(() => this.fail());
 	}
@@ -36,6 +39,7 @@ export class SignalRService {
 			.start()
 			.then(() => {
 				this.initiated = true;
+				this.connected.value = true;
 				while (this.invokeQueue.length) {
 					const action = this.invokeQueue.shift() as Action;
 					action.call(this);
@@ -99,7 +103,12 @@ export class SignalRService {
 		}
 	}
 
+	getConnectionStatus() {
+		return this.connected;
+	}
+
 	private fail() {
+		this.connected.value = false;
 		this.options.disconnected?.call(null);
 	}
 }
