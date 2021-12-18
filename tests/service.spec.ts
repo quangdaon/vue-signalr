@@ -10,6 +10,8 @@ describe('SignalRService', () => {
 	beforeEach(() => {
 		mockOptions = { url: 'fake-url' };
 		mockConnection = jasmine.createSpyObj([
+			'onreconnected',
+			'onreconnecting',
 			'onclose',
 			'start',
 			'invoke',
@@ -20,7 +22,11 @@ describe('SignalRService', () => {
 		mockConnection.start.and.returnValue(Promise.resolve());
 		mockConnection.invoke.and.returnValue(new Promise(res => res));
 
-		mockBuilder = jasmine.createSpyObj(['withUrl', 'withAutomaticReconnect', 'build']);
+		mockBuilder = jasmine.createSpyObj([
+			'withUrl',
+			'withAutomaticReconnect',
+			'build'
+		]);
 		mockBuilder.withUrl.and.returnValue(mockBuilder);
 		mockBuilder.build.and.returnValue(mockConnection);
 	});
@@ -32,7 +38,10 @@ describe('SignalRService', () => {
 
 	it('should connect to URL from configuration', () => {
 		new SignalRService(mockOptions, mockBuilder);
-		expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith('fake-url', jasmine.anything());
+		expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith(
+			'fake-url',
+			jasmine.anything()
+		);
 	});
 
 	it('should not enable automatic reconnections by default', () => {
@@ -69,6 +78,54 @@ describe('SignalRService', () => {
 		expect(() => new SignalRService(mockOptions, mockBuilder)).not.toThrow();
 	});
 
+	it('should set status to false on close', () => {
+		const closeSpy = jasmine.createSpy();
+
+		mockConnection.onclose.and.callFake(callback => {
+			closeSpy.and.callFake(() => {
+				callback();
+				expect(status.value).toBeFalse();
+			});
+		});
+
+		const service = new SignalRService(mockOptions, mockBuilder);
+		const status = service.getConnectionStatus();
+
+		status.value = true;
+		closeSpy();
+	});
+
+	it('should call reconnect callback on reconnect', () => {
+		const reconnectSpy = jasmine.createSpy();
+		mockOptions.reconnected = reconnectSpy;
+		mockConnection.onreconnected.and.callFake(callback => {
+			callback();
+
+			expect(reconnectSpy).toHaveBeenCalledTimes(1);
+		});
+
+		new SignalRService(mockOptions, mockBuilder);
+
+		expect(mockConnection.onreconnected).toHaveBeenCalledTimes(1);
+	});
+
+	it('should set status to true on reconnect', () => {
+		const reconnectSpy = jasmine.createSpy();
+
+		mockConnection.onreconnected.and.callFake(callback => {
+			reconnectSpy.and.callFake(() => {
+				callback();
+				expect(status.value).toBeTrue();
+			});
+		});
+
+		const service = new SignalRService(mockOptions, mockBuilder);
+		const status = service.getConnectionStatus();
+
+		status.value = false;
+		reconnectSpy();
+	});
+
 	describe('init', () => {
 		it('should start the connection', () => {
 			const service = new SignalRService(mockOptions, mockBuilder);
@@ -87,6 +144,19 @@ describe('SignalRService', () => {
 
 			setTimeout(() => {
 				expect(disconnectSpy).toHaveBeenCalledTimes(1);
+				done();
+			});
+		});
+
+		it('should set connection status to true', done => {
+			const service = new SignalRService(mockOptions, mockBuilder);
+			const connected = service.getConnectionStatus();
+
+			expect(connected.value).toBeFalse();
+			service.init();
+
+			setTimeout(() => {
+				expect(connected.value).toBeTrue();
 				done();
 			});
 		});

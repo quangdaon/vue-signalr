@@ -3,6 +3,7 @@ import {
 	HubConnectionBuilder,
 	IHttpConnectionOptions
 } from '@microsoft/signalr';
+import { ref } from 'vue';
 import { SignalRConfig } from './config';
 import { HubEventToken, HubCommandToken } from './tokens';
 
@@ -10,7 +11,8 @@ type Action = () => void;
 
 export class SignalRService {
 	private connection: HubConnection;
-	private connected = false;
+	private initiated = false;
+	private connected = ref(false);
 
 	private invokeQueue: Action[] = [];
 	private successQueue: Action[] = [];
@@ -27,7 +29,10 @@ export class SignalRService {
 
 		connectionBuilder.withUrl(options.url, connOptions);
 		if (options.automaticReconnect) connectionBuilder.withAutomaticReconnect();
+
 		this.connection = connectionBuilder.build();
+		this.connection.onreconnected(() => this.reconnect());
+		this.connection.onreconnecting(() => this.fail());
 		this.connection.onclose(() => this.fail());
 	}
 
@@ -35,7 +40,8 @@ export class SignalRService {
 		this.connection
 			.start()
 			.then(() => {
-				this.connected = true;
+				this.initiated = true;
+				this.connected.value = true;
 				while (this.invokeQueue.length) {
 					const action = this.invokeQueue.shift() as Action;
 					action.call(this);
@@ -52,7 +58,7 @@ export class SignalRService {
 	}
 
 	connectionSuccess(callback: () => void) {
-		if (this.connected) {
+		if (this.initiated) {
 			callback();
 		} else {
 			this.successQueue.push(callback);
@@ -66,7 +72,7 @@ export class SignalRService {
 				: this.connection.invoke(target as string);
 
 		return new Promise((res, rej) => {
-			if (this.connected) {
+			if (this.initiated) {
 				invoke().then(res).catch(rej);
 			} else {
 				this.invokeQueue.push(() => invoke().then(res).catch(rej));
@@ -80,7 +86,7 @@ export class SignalRService {
 				? this.connection.send(target as string, message)
 				: this.connection.send(target as string);
 
-		if (this.connected) {
+		if (this.initiated) {
 			send();
 		} else {
 			this.invokeQueue.push(send);
@@ -99,7 +105,17 @@ export class SignalRService {
 		}
 	}
 
+	getConnectionStatus() {
+		return this.connected;
+	}
+
+	private reconnect() {
+		this.connected.value = true;
+		this.options.reconnected?.call(null);
+	}
+
 	private fail() {
+		this.connected.value = false;
 		this.options.disconnected?.call(null);
 	}
 }
