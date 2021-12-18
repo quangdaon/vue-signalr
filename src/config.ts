@@ -1,4 +1,7 @@
-import { HubConnectionBuilder, IHttpConnectionOptions } from '@microsoft/signalr';
+import {
+	HubConnectionBuilder,
+	IHttpConnectionOptions
+} from '@microsoft/signalr';
 
 export interface SignalRConfig {
 	/** The url of the hub to connect to */
@@ -28,7 +31,10 @@ export interface SignalRConfig {
 	 *   builder.configureLogging(LogLevel.Information)
 	 * }
 	 */
-	prebuild?: (builder: HubConnectionBuilder, options: IHttpConnectionOptions) => void;
+	prebuild?: (
+		builder: HubConnectionBuilder,
+		options: IHttpConnectionOptions
+	) => void;
 
 	/** When true, the connect will automatically attempt to reconnect */
 	automaticReconnect?: boolean;
