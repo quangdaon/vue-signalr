@@ -28,6 +28,9 @@ jobs:
       - name: Run Tests
         run: npm test -- --single-run --browsers ChromeHeadlessCI
 
+      - name: Run Linting
+        run: npm run lint
+
       - name: Publish to NPM
         uses: JS-DevTools/npm-publish@v1
         with:

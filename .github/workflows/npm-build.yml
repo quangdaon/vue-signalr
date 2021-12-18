@@ -26,3 +26,6 @@ jobs:
 
       - name: Run Tests
         run: npm test -- --single-run --browsers ChromeHeadlessCI
+
+      - name: Run Linting
+        run: npm run lint

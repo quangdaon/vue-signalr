@@ -1,4 +1,8 @@
-import { HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from '@microsoft/signalr';
+import {
+	HubConnection,
+	HubConnectionBuilder,
+	IHttpConnectionOptions
+} from '@microsoft/signalr';
 import { SignalRConfig } from './config';
 import { HubEventToken, HubCommandToken } from './tokens';
 
@@ -18,7 +22,7 @@ export class SignalRService {
 		const connOptions: IHttpConnectionOptions = {};
 
 		if (options.accessTokenFactory) {
-			connOptions.accessTokenFactory = options.accessTokenFactory
+			connOptions.accessTokenFactory = options.accessTokenFactory;
 		}
 
 		connectionBuilder.withUrl(options.url, connOptions);
@@ -56,9 +60,10 @@ export class SignalRService {
 	}
 
 	invoke<T>(target: HubCommandToken<T>, message?: T) {
-		const invoke = () => message ?
-			this.connection.invoke(target as string, message) :
-			this.connection.invoke(target as string);
+		const invoke = () =>
+			message
+				? this.connection.invoke(target as string, message)
+				: this.connection.invoke(target as string);
 
 		return new Promise((res, rej) => {
 			if (this.connected) {
@@ -70,9 +75,10 @@ export class SignalRService {
 	}
 
 	send<T>(target: HubCommandToken<T>, message?: T) {
-		const send = () => message ?
-			this.connection.send(target as string, message) :
-			this.connection.send(target as string);
+		const send = () =>
+			message
+				? this.connection.send(target as string, message)
+				: this.connection.send(target as string);
 
 		if (this.connected) {
 			send();

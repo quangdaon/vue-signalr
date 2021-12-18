@@ -12,7 +12,8 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "rollup -c",
-		"test": "karma start"
+		"test": "karma start",
+		"lint": "eslint ./src/*"
 	},
 	"keywords": [
 		"vue",
@@ -28,7 +29,10 @@
 	"devDependencies": {
 		"@types/jasmine": "^3.8.2",
 		"@types/node": "^16.7.4",
-		"eslint": "^6.7.2",
+		"@typescript-eslint/eslint-plugin": "^5.7.0",
+		"@typescript-eslint/parser": "^5.7.0",
+		"eslint": "^8.5.0",
+		"eslint-plugin-prettier": "^4.0.0",
 		"jasmine-core": "^3.9.0",
 		"karma": "^6.3.4",
 		"karma-chrome-launcher": "^3.1.0",

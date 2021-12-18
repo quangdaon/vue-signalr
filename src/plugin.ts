@@ -15,11 +15,11 @@ export const VueSignalR = {
 };
 
 export function useSignalR() {
-  const signalr = inject(SignalRSymbol);
+	const signalr = inject(SignalRSymbol);
 
-  if (!signalr) {
-    throw new Error('Failed to inject SignalR');
-  }
+	if (!signalr) {
+		throw new Error('Failed to inject SignalR');
+	}
 
-  return signalr;
+	return signalr;
 }
