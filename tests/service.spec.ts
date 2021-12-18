@@ -1,5 +1,9 @@
 import { SignalRConfig } from '@/config';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import {
+	HubConnection,
+	HubConnectionBuilder,
+	LogLevel
+} from '@microsoft/signalr';
 import { SignalRService } from '@/service';
 
 describe('SignalRService', () => {
@@ -20,7 +24,12 @@ describe('SignalRService', () => {
 		mockConnection.start.and.returnValue(Promise.resolve());
 		mockConnection.invoke.and.returnValue(new Promise(res => res));
 
-		mockBuilder = jasmine.createSpyObj(['withUrl', 'withAutomaticReconnect', 'build']);
+		mockBuilder = jasmine.createSpyObj([
+			'withUrl',
+			'withAutomaticReconnect',
+			'configureLogging',
+			'build'
+		]);
 		mockBuilder.withUrl.and.returnValue(mockBuilder);
 		mockBuilder.build.and.returnValue(mockConnection);
 	});
@@ -30,43 +39,57 @@ describe('SignalRService', () => {
 		expect(service).toBeTruthy();
 	});
 
-	it('should connect to URL from configuration', () => {
-		new SignalRService(mockOptions, mockBuilder);
-		expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith('fake-url', jasmine.anything());
-	});
-
-	it('should not enable automatic reconnections by default', () => {
-		new SignalRService(mockOptions, mockBuilder);
-		expect(mockBuilder.withAutomaticReconnect).not.toHaveBeenCalled();
-	});
-
-	it('should enable automatic reconnections', () => {
-		mockOptions.automaticReconnect = true;
-		new SignalRService(mockOptions, mockBuilder);
-		expect(mockBuilder.withAutomaticReconnect).toHaveBeenCalledTimes(1);
-	});
-
-	it('should call disconnect callback on close', () => {
-		const disconnectSpy = jasmine.createSpy();
-		mockOptions.disconnected = disconnectSpy;
-		mockConnection.onclose.and.callFake(callback => {
-			callback();
-
-			expect(disconnectSpy).toHaveBeenCalledTimes(1);
+	describe('configuration', () => {
+		it('should connect to URL from configuration', () => {
+			new SignalRService(mockOptions, mockBuilder);
+			expect(mockBuilder.withUrl as any).toHaveBeenCalledOnceWith(
+				'fake-url',
+				jasmine.anything()
+			);
 		});
 
-		new SignalRService(mockOptions, mockBuilder);
-
-		expect(mockConnection.onclose).toHaveBeenCalledTimes(1);
-	});
-
-	it('should call fail silently on close if no disconnect callback', () => {
-		mockOptions.disconnected = undefined;
-		mockConnection.onclose.and.callFake(callback => {
-			callback();
+		it('should not enable automatic reconnections by default', () => {
+			new SignalRService(mockOptions, mockBuilder);
+			expect(mockBuilder.withAutomaticReconnect).not.toHaveBeenCalled();
 		});
 
-		expect(() => new SignalRService(mockOptions, mockBuilder)).not.toThrow();
+		it('should enable automatic reconnections', () => {
+			mockOptions.automaticReconnect = true;
+			new SignalRService(mockOptions, mockBuilder);
+			expect(mockBuilder.withAutomaticReconnect).toHaveBeenCalledTimes(1);
+		});
+
+		it('should allow hooking into the builder', () => {
+			mockOptions.onBeforeBuild = (builder: HubConnectionBuilder) => {
+				builder.configureLogging(LogLevel.Information);
+			};
+
+			new SignalRService(mockOptions, mockBuilder);
+			expect(mockBuilder.configureLogging).toHaveBeenCalledOnceWith(LogLevel.Information);
+		});
+
+		it('should call disconnect callback on close', () => {
+			const disconnectSpy = jasmine.createSpy();
+			mockOptions.disconnected = disconnectSpy;
+			mockConnection.onclose.and.callFake(callback => {
+				callback();
+
+				expect(disconnectSpy).toHaveBeenCalledTimes(1);
+			});
+
+			new SignalRService(mockOptions, mockBuilder);
+
+			expect(mockConnection.onclose).toHaveBeenCalledTimes(1);
+		});
+
+		it('should call fail silently on close if no disconnect callback', () => {
+			mockOptions.disconnected = undefined;
+			mockConnection.onclose.and.callFake(callback => {
+				callback();
+			});
+
+			expect(() => new SignalRService(mockOptions, mockBuilder)).not.toThrow();
+		});
 	});
 
 	describe('init', () => {

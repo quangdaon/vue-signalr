@@ -27,6 +27,7 @@ export class SignalRService {
 
 		connectionBuilder.withUrl(options.url, connOptions);
 		if (options.automaticReconnect) connectionBuilder.withAutomaticReconnect();
+		if (options.onBeforeBuild) options.onBeforeBuild(connectionBuilder);
 		this.connection = connectionBuilder.build();
 		this.connection.onclose(() => this.fail());
 	}
