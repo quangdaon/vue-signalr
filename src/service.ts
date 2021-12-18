@@ -9,8 +9,13 @@ import { HubEventToken, HubCommandToken } from './tokens';
 
 type Action = () => void;
 
+/**
+ * A service to integrate SignalR with VueJS
+ */
 export class SignalRService {
-	private connection: HubConnection;
+	/** The current SignalR connection object */
+	public readonly connection: HubConnection;
+
 	private initiated = false;
 	private connected = ref(false);
 
@@ -27,7 +32,10 @@ export class SignalRService {
 			connOptions.accessTokenFactory = options.accessTokenFactory;
 		}
 
+		if (options.prebuild) options.prebuild(connectionBuilder, connOptions);
+
 		connectionBuilder.withUrl(options.url, connOptions);
+
 		if (options.automaticReconnect) connectionBuilder.withAutomaticReconnect();
 
 		this.connection = connectionBuilder.build();
@@ -36,6 +44,7 @@ export class SignalRService {
 		this.connection.onclose(() => this.fail());
 	}
 
+	/** Start the connection; called automatically when the plugin is registered */
 	init() {
 		this.connection
 			.start()
@@ -57,6 +66,7 @@ export class SignalRService {
 			});
 	}
 
+	/** Set a callback to trigger when a connection to the hub is successfully established */
 	connectionSuccess(callback: () => void) {
 		if (this.initiated) {
 			callback();
@@ -65,13 +75,22 @@ export class SignalRService {
 		}
 	}
 
-	invoke<T>(target: HubCommandToken<T>, message?: T) {
+	/**
+	 * Send a command to the SignalR hub
+	 * @param target The name or token of the command to send to
+	 * @param message The payload to send to the command
+	 * @returns a promise the resolves with the event returns a value
+	 */
+	invoke<TMessage, TResponse = any>(
+		target: HubCommandToken<TMessage>,
+		message?: TMessage
+	): Promise<TResponse> {
 		const invoke = () =>
 			message
 				? this.connection.invoke(target as string, message)
 				: this.connection.invoke(target as string);
 
-		return new Promise((res, rej) => {
+		return new Promise<TResponse>((res, rej) => {
 			if (this.initiated) {
 				invoke().then(res).catch(rej);
 			} else {
@@ -80,6 +99,11 @@ export class SignalRService {
 		});
 	}
 
+	/**
+	 * Send a command to the SignalR hub without awaiting a response
+	 * @param target The name or token of the command to send to
+	 * @param message The payload to send to the command
+	 */
 	send<T>(target: HubCommandToken<T>, message?: T) {
 		const send = () =>
 			message
@@ -93,10 +117,20 @@ export class SignalRService {
 		}
 	}
 
+	/**
+	 * Subscribe to an event on the hub
+	 * @param target The name or token of the event to listen to
+	 * @param callback The callback to trigger with the hub sends the event
+	 */
 	on<T>(target: HubEventToken<T>, callback: (arg: T) => void) {
 		this.connection.on(target as string, callback);
 	}
 
+	/**
+	 * Unsubscribe from an event on the hub
+	 * @param target The name or token of the event to unsubscribe from
+	 * @param callback The specific callback to unsubscribe. If none is provided, all listeners on the target will be unsubscribed
+	 */
 	off<T>(target: HubEventToken<T>, callback?: (arg: T) => void) {
 		if (callback) {
 			this.connection.off(target as string, callback);
@@ -105,6 +139,7 @@ export class SignalRService {
 		}
 	}
 
+	/** Get a reactive connection status */
 	getConnectionStatus() {
 		return this.connected;
 	}

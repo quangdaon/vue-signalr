@@ -4,6 +4,7 @@ import { SignalRService } from './service';
 import { SignalRSymbol } from './symbols';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 
+/** The SignalR Plugin for Vue JS */
 export const VueSignalR = {
 	install(app: App, options: SignalRConfig) {
 		const service = new SignalRService(options, new HubConnectionBuilder());
@@ -14,6 +15,7 @@ export const VueSignalR = {
 	}
 };
 
+/** Inject the SignalR service */
 export function useSignalR() {
 	const signalr = inject(SignalRSymbol);
 
