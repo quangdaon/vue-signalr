@@ -9,7 +9,7 @@ import { HubEventToken, HubCommandToken } from './tokens';
 type Action = () => void;
 
 export class SignalRService {
-	private connection: HubConnection;
+	public readonly connection: HubConnection;
 	private connected = false;
 
 	private invokeQueue: Action[] = [];
