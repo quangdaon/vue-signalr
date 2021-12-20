@@ -35,7 +35,7 @@ interface MyObject {
 }
 
 // Optional Tokens
-// Learn More: https://github.com/quangdaon/vue-signalr/wiki/Usage#tokens
+// Learn More: https://github.com/quangdaon/vue-signalr/wiki/03.-Usage#tokens
 const SendMessage: HubCommandToken<MyObject> = 'SendMessage';
 const MessageReceived: HubEventToken<MyObject> = 'MessageReceived';
 
