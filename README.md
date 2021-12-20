@@ -56,5 +56,3 @@ export default {
   }
 };
 ```
-
-For more detailed instructions, check out the wiki at <https://github.com/quangdaon/vue-signalr/wiki>.
