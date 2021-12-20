@@ -2,7 +2,7 @@
 
 [![NPM Install](https://nodei.co/npm/@quangdao/vue-signalr.png?mini=true)](https://www.npmjs.com/package/@quangdao/vue-signalr)
 
-This plugin has only been tested with Vue 3 and TypeScript. Use at your own risk.
+SignalR plugin for Vue 3.
 
 ## Installation
 
@@ -20,20 +20,21 @@ createApp(App)
 
 ### Configuration
 
-The plugin accept a configuration object with the following values:
+The plugin accepts a configuration object with the following values:
 
-| Property           | Required | Description                                                     |
-| ------------------ | -------- | --------------------------------------------------------------- |
-| url                | Yes      | The address to your SignalR server                              |
-| disconnected       | No       | Callback to trigger when the connection is lost                 |
-| reconnected        | No       | Callback to trigger when the connection is reestablished        |
-| accessTokenFactory | No       | Factory that returns an access token to pas to the hub          |
-| prebuild           | No       | Hook to modify the connection build before the connect is built |
-| automaticReconnect | No       | When true, the connect will automatically attempt to reconnect  |
+| Property             | Required | Description                                                                                         |
+| -------------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| url                  | Yes      | The address to your SignalR server                                                                  |
+| disconnected         | No       | Callback to trigger when the connection is lost                                                     |
+| reconnected          | No       | Callback to trigger when the connection is reestablished                                            |
+| accessTokenFactory   | No       | Factory that returns an access token to pas to the hub                                              |
+| prebuild             | No       | Hook to modify the connection builder before the connection is built                                     |
+| automaticReconnect   | No       | When true, the connection will automatically attempt to reconnect; _Default: false_                    |
+| automaticUnsubscribe | No       | When true, events will automatically be unsubscribed when a component is destroyed; _Default: true_ |
 
-### Using SignalR Directly
+### Accessing SignalR Directly
 
-If the built-in configuration options are not enough for you, Vue SignalR exposes both the connection and the builder itself. The connection is accessible through `signalr.connection` (see [Usage](#usage) below). In order to hook into the builder, you need to pass a `prebuild` method in the configuration object upon initialization. For example:
+If the built-in configuration options are not enough for you, Vue SignalR exposes both the connection and the builder itself. The connection is accessible through `signalr.connection` during normal usage (see [Usage](#usage) below). In order to hook into the builder, you need to pass a `prebuild` method in the configuration object upon initialization. For example:
 
 ```typescript
 createApp(App)
@@ -100,7 +101,7 @@ signalr.on<MyObject>('MessageReceived', message => console.log(message.prop));
 
 #### Unsubscribing
 
-Eventually, I want to automatically unbind all subscription within the context of a component when that component is destroyed, but for now I recommend unsubscribing from all of your connections onBeforeUnmount.
+If `automaticUnsubscribe` is configured (enabled by default), Vue SignalR will automatically unsubscribe from all events called within a component when the component is destroyed. If you need to programmatically unsubscribe from an event, you can use `signalr.off`.
 
 Same rules regarding tokens above apply here.
 
@@ -111,6 +112,17 @@ setup() {
   signalr.on(MessageReceived, messageReceivedCallback);
   onBeforeUnmount(() => signalr.off(MessageReceived, messageReceivedCallback));
 }
+```
+
+Automatic unsubscribe can also be configured per-basis by passing a third boolean argument to `signalr.on`. This option will always take precendence over the initial configuration, so regardless of whether it's enabled or not, `true` will always automatically unsubscribe, and `false` will always prevent it.
+
+
+```typescript
+// Unsubscribes
+signalr.on(MessageReceived, messageReceivedCallback, true);
+
+// Does not unsubscribe
+signalr.on(MessageReceived, messageReceivedCallback, false);
 ```
 
 #### Sending Message

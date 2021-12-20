@@ -23,7 +23,7 @@ export interface SignalRConfig {
 	accessTokenFactory?: () => string | Promise<string>;
 
 	/**
-	 * Hook to modify the connection build before the connect is built
+	 * Hook to modify the connection builder before the connection is built
 	 * @param builder The connection builder
 	 * @param options The connection builder options
 	 * @example
