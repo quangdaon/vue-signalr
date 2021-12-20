@@ -63,8 +63,8 @@ export class SignalRService {
 	 * @param message The payload to send to the command
 	 * @returns a promise the resolves with the event returns a value
 	 */
-	invoke<TMessage, TResponse = any>(
-		target: HubCommandToken<TMessage>,
+	invoke<TMessage, TResponse>(
+		target: HubCommandToken<TMessage, TResponse>,
 		message?: TMessage
 	): Promise<TResponse> {
 		const invoke = () =>
