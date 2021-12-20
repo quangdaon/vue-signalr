@@ -14,11 +14,12 @@
     "outDir": "dist",
     "baseUrl": "./",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["./src/*"]
 		}
   },
   "include": [
-    "src/index.ts"
+    "src/index.ts",
+    "tests/**/*.spec.ts"
   ],
   "exclude": [
     "./node_modules",

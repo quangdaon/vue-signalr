@@ -3,7 +3,7 @@ import {
 	HubConnectionBuilder,
 	IHttpConnectionOptions
 } from '@microsoft/signalr';
-import { ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 import { SignalRConfig } from './config';
 import { HubEventToken, HubCommandToken } from './tokens';
 
@@ -111,6 +111,7 @@ export class SignalRService {
 	 */
 	on<T>(target: HubEventToken<T>, callback: (arg: T) => void) {
 		this.connection.on(target as string, callback);
+		onBeforeUnmount(() => this.off(target, callback));
 	}
 
 	/**
