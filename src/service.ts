@@ -4,10 +4,9 @@ import {
 	IHttpConnectionOptions
 } from '@microsoft/signalr';
 import { onBeforeUnmount, ref } from 'vue';
+import { ActionQueue } from './utils/action-queue';
 import { SignalRConfig } from './config';
 import { HubEventToken, HubCommandToken } from './tokens';
-
-type Action = () => void;
 
 /**
  * A service to integrate SignalR with VueJS
@@ -19,8 +18,8 @@ export class SignalRService {
 	private initiated = false;
 	private connected = ref(false);
 
-	private invokeQueue: Action[] = [];
-	private successQueue: Action[] = [];
+	private invokeQueue = new ActionQueue();
+	private successQueue = new ActionQueue();
 
 	constructor(
 		private options: SignalRConfig,
@@ -39,15 +38,8 @@ export class SignalRService {
 			this.initiated = true;
 			this.connected.value = true;
 
-			while (this.invokeQueue.length) {
-				const action = this.invokeQueue.shift() as Action;
-				action.call(this);
-			}
-
-			while (this.successQueue.length) {
-				const action = this.successQueue.shift() as Action;
-				action.call(null);
-			}
+			this.invokeQueue.resolve();
+			this.successQueue.resolve();
 		} catch {
 			this.fail();
 		}
@@ -58,7 +50,7 @@ export class SignalRService {
 		if (this.initiated) {
 			callback();
 		} else {
-			this.successQueue.push(callback);
+			this.successQueue.enqueue(callback);
 		}
 	}
 
@@ -81,7 +73,7 @@ export class SignalRService {
 			if (this.initiated) {
 				invoke().then(res).catch(rej);
 			} else {
-				this.invokeQueue.push(() => invoke().then(res).catch(rej));
+				this.invokeQueue.enqueue(() => invoke().then(res).catch(rej));
 			}
 		});
 	}
@@ -100,7 +92,7 @@ export class SignalRService {
 		if (this.initiated) {
 			send();
 		} else {
-			this.invokeQueue.push(send);
+			this.invokeQueue.enqueue(send);
 		}
 	}
 
