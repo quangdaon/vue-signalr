@@ -36,6 +36,15 @@ export interface SignalRConfig {
 		options: IHttpConnectionOptions
 	) => void;
 
-	/** When true, the connection will automatically attempt to reconnect */
+	/**
+	 * When true, the connection will automatically attempt to reconnect
+	 * @default false
+	 */
 	automaticReconnect?: boolean;
+
+	/**
+	 * When true, events will automatically be unsubscribed when a component is destroyed
+	 * @default true
+	 */
+	 automaticUnsubscribe?: boolean;
 }

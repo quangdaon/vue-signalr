@@ -15,16 +15,19 @@ export class SignalRService {
 	/** The current SignalR connection object */
 	public readonly connection: HubConnection;
 
+	private options: SignalRConfig;
 	private initiated = false;
 	private connected = ref(false);
 
 	private invokeQueue = new ActionQueue();
 	private successQueue = new ActionQueue();
 
-	constructor(
-		private options: SignalRConfig,
-		connectionBuilder: HubConnectionBuilder
-	) {
+	constructor(options: SignalRConfig, connectionBuilder: HubConnectionBuilder) {
+		this.options = {
+			automaticUnsubscribe: true,
+			...options
+		};
+
 		const connection = this.buildConnection(connectionBuilder);
 		this.configureConnection(connection);
 		this.connection = connection;
@@ -100,10 +103,15 @@ export class SignalRService {
 	 * Subscribe to an event on the hub
 	 * @param target The name or token of the event to listen to
 	 * @param callback The callback to trigger with the hub sends the event
+	 * @param autoUnsubscribe Override options.automaticUnsubscribe config
 	 */
-	on<T>(target: HubEventToken<T>, callback: (arg: T) => void) {
+	on<T>(
+		target: HubEventToken<T>,
+		callback: (arg: T) => void,
+		autoUnsubscribe = this.options.automaticUnsubscribe
+	) {
 		this.connection.on(target as string, callback);
-		onBeforeUnmount(() => this.off(target, callback));
+		if (autoUnsubscribe) onBeforeUnmount(() => this.off(target, callback));
 	}
 
 	/**
