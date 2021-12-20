@@ -23,7 +23,7 @@ export interface SignalRConfig {
 	accessTokenFactory?: () => string | Promise<string>;
 
 	/**
-	 * Hook to modify the connection build before the connect is built
+	 * Hook to modify the connection builder before the connection is built
 	 * @param builder The connection builder
 	 * @param options The connection builder options
 	 * @example
@@ -36,6 +36,15 @@ export interface SignalRConfig {
 		options: IHttpConnectionOptions
 	) => void;
 
-	/** When true, the connection will automatically attempt to reconnect */
+	/**
+	 * When true, the connection will automatically attempt to reconnect
+	 * @default false
+	 */
 	automaticReconnect?: boolean;
+
+	/**
+	 * When true, events will automatically be unsubscribed when a component is destroyed
+	 * @default true
+	 */
+	automaticUnsubscribe?: boolean;
 }

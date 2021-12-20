@@ -7,10 +7,13 @@ import {
 } from '@microsoft/signalr';
 import { SignalRService } from '@/service';
 
+import * as Vue from 'vue';
+
 describe('SignalRService', () => {
 	let mockOptions: SignalRConfig;
 	let mockBuilder: jasmine.SpyObj<HubConnectionBuilder>;
 	let mockConnection: jasmine.SpyObj<HubConnection>;
+	let onBeforeUnmountSpy: jasmine.Spy;
 
 	beforeEach(() => {
 		mockOptions = { url: 'fake-url' };
@@ -35,6 +38,8 @@ describe('SignalRService', () => {
 		]);
 		mockBuilder.withUrl.and.returnValue(mockBuilder);
 		mockBuilder.build.and.returnValue(mockConnection);
+
+		onBeforeUnmountSpy = spyOn(Vue, 'onBeforeUnmount');
 	});
 
 	it('should be created', () => {
@@ -338,6 +343,58 @@ describe('SignalRService', () => {
 			service.on('Method', callback);
 
 			expect(mockConnection.on).toHaveBeenCalledOnceWith('Method', callback);
+		});
+
+		it('should unsubscribe on onmount', () => {
+			const callback = () => {};
+			onBeforeUnmountSpy.and.callFake(((hook: () => any) => {
+				hook();
+				expect(mockConnection.off).toHaveBeenCalledOnceWith('Method', callback);
+			}) as any);
+
+			service.on('Method', callback);
+
+			expect(onBeforeUnmountSpy).toHaveBeenCalledTimes(1);
+		});
+
+		it('should be able to opt out of auto unsubscribe when default is on', () => {
+			const callback = () => {};
+			mockOptions.automaticUnsubscribe = true;
+			onBeforeUnmountSpy.and.callFake(((hook: () => any) => {
+				hook();
+				expect(mockConnection.off).toHaveBeenCalledOnceWith('Method', callback);
+			}) as any);
+
+			service.on('Method', callback, false);
+
+			expect(onBeforeUnmountSpy).not.toHaveBeenCalled();
+		});
+
+		it('should be able to disable auto unsubscribe', () => {
+			const callback = () => { };
+			mockOptions.automaticUnsubscribe = false;
+			service = new SignalRService(mockOptions, mockBuilder);
+			onBeforeUnmountSpy.and.callFake(((hook: () => any) => {
+				hook();
+				expect(mockConnection.off).toHaveBeenCalledOnceWith('Method', callback);
+			}) as any);
+
+			service.on('Method', callback);
+
+			expect(onBeforeUnmountSpy).not.toHaveBeenCalled();
+		});
+
+		it('should be able to opt in to auto unsubscribe when default is off', () => {
+			const callback = () => {};
+			mockOptions.automaticUnsubscribe = false;
+			onBeforeUnmountSpy.and.callFake(((hook: () => any) => {
+				hook();
+				expect(mockConnection.off).toHaveBeenCalledOnceWith('Method', callback);
+			}) as any);
+
+			service.on('Method', callback, true);
+
+			expect(onBeforeUnmountSpy).toHaveBeenCalledTimes(1);
 		});
 	});
 

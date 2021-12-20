@@ -3,11 +3,10 @@ import {
 	HubConnectionBuilder,
 	IHttpConnectionOptions
 } from '@microsoft/signalr';
-import { ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
+import { ActionQueue } from './utils/action-queue';
 import { SignalRConfig } from './config';
 import { HubEventToken, HubCommandToken } from './tokens';
-
-type Action = () => void;
 
 /**
  * A service to integrate SignalR with VueJS
@@ -16,16 +15,19 @@ export class SignalRService {
 	/** The current SignalR connection object */
 	public readonly connection: HubConnection;
 
+	private options: SignalRConfig;
 	private initiated = false;
 	private connected = ref(false);
 
-	private invokeQueue: Action[] = [];
-	private successQueue: Action[] = [];
+	private invokeQueue = new ActionQueue();
+	private successQueue = new ActionQueue();
 
-	constructor(
-		private options: SignalRConfig,
-		connectionBuilder: HubConnectionBuilder
-	) {
+	constructor(options: SignalRConfig, connectionBuilder: HubConnectionBuilder) {
+		this.options = {
+			automaticUnsubscribe: true,
+			...options
+		};
+
 		const connection = this.buildConnection(connectionBuilder);
 		this.configureConnection(connection);
 		this.connection = connection;
@@ -39,15 +41,8 @@ export class SignalRService {
 			this.initiated = true;
 			this.connected.value = true;
 
-			while (this.invokeQueue.length) {
-				const action = this.invokeQueue.shift() as Action;
-				action.call(this);
-			}
-
-			while (this.successQueue.length) {
-				const action = this.successQueue.shift() as Action;
-				action.call(null);
-			}
+			this.invokeQueue.resolve();
+			this.successQueue.resolve();
 		} catch {
 			this.fail();
 		}
@@ -58,7 +53,7 @@ export class SignalRService {
 		if (this.initiated) {
 			callback();
 		} else {
-			this.successQueue.push(callback);
+			this.successQueue.enqueue(callback);
 		}
 	}
 
@@ -81,7 +76,7 @@ export class SignalRService {
 			if (this.initiated) {
 				invoke().then(res).catch(rej);
 			} else {
-				this.invokeQueue.push(() => invoke().then(res).catch(rej));
+				this.invokeQueue.enqueue(() => invoke().then(res).catch(rej));
 			}
 		});
 	}
@@ -100,7 +95,7 @@ export class SignalRService {
 		if (this.initiated) {
 			send();
 		} else {
-			this.invokeQueue.push(send);
+			this.invokeQueue.enqueue(send);
 		}
 	}
 
@@ -108,9 +103,15 @@ export class SignalRService {
 	 * Subscribe to an event on the hub
 	 * @param target The name or token of the event to listen to
 	 * @param callback The callback to trigger with the hub sends the event
+	 * @param autoUnsubscribe Override options.automaticUnsubscribe config
 	 */
-	on<T>(target: HubEventToken<T>, callback: (arg: T) => void) {
+	on<T>(
+		target: HubEventToken<T>,
+		callback: (arg: T) => void,
+		autoUnsubscribe = this.options.automaticUnsubscribe
+	) {
 		this.connection.on(target as string, callback);
+		if (autoUnsubscribe) onBeforeUnmount(() => this.off(target, callback));
 	}
 
 	/**
