@@ -1,7 +1,5 @@
 # Vue SignalR Plugin
 
-[![NPM Install](https://nodei.co/npm/@quangdao/vue-signalr.png?mini=true)](https://www.npmjs.com/package/@quangdao/vue-signalr)
-
 SignalR plugin for Vue 3.
 
 ## Quick Start
@@ -9,6 +7,8 @@ SignalR plugin for Vue 3.
 > For more detailed instructions, check out the wiki at <https://github.com/quangdaon/vue-signalr/wiki>.
 
 ### Installation
+
+[![NPM Install](https://nodei.co/npm/@quangdao/vue-signalr.png?mini=true)](https://www.npmjs.com/package/@quangdao/vue-signalr)
 
 To install in Vue 3:
 
