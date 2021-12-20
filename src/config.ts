@@ -46,5 +46,5 @@ export interface SignalRConfig {
 	 * When true, events will automatically be unsubscribed when a component is destroyed
 	 * @default true
 	 */
-	 automaticUnsubscribe?: boolean;
+	automaticUnsubscribe?: boolean;
 }
