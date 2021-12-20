@@ -75,6 +75,18 @@ describe('SignalRService', () => {
 			expect(mockBuilder.withAutomaticReconnect).toHaveBeenCalledTimes(1);
 		});
 
+		it('should pass accessTokenFactory to builder options', () => {
+			const factory = () => '<my-access-token>';
+			mockOptions.accessTokenFactory = factory;
+			new SignalRService(mockOptions, mockBuilder);
+			expect(mockBuilder.withUrl).toHaveBeenCalledOnceWith(
+				jasmine.any(String),
+				jasmine.objectContaining({
+					accessTokenFactory: factory
+				})
+			);
+		});
+
 		it('should call disconnect callback on close', () => {
 			const disconnectSpy = jasmine.createSpy();
 			mockOptions.disconnected = disconnectSpy;
@@ -169,6 +181,37 @@ describe('SignalRService', () => {
 
 			status.value = true;
 			closeSpy();
+		});
+
+		it('should call disconnect callback on reconnecting', () => {
+			const disconnectSpy = jasmine.createSpy();
+			mockOptions.disconnected = disconnectSpy;
+			mockConnection.onreconnecting.and.callFake(callback => {
+				callback();
+
+				expect(disconnectSpy).toHaveBeenCalledTimes(1);
+			});
+
+			new SignalRService(mockOptions, mockBuilder);
+
+			expect(mockConnection.onreconnecting).toHaveBeenCalledTimes(1);
+		});
+
+		it('should set status to false on reconnecting', () => {
+			const reconnectSpy = jasmine.createSpy();
+
+			mockConnection.onreconnecting.and.callFake(callback => {
+				reconnectSpy.and.callFake(() => {
+					callback();
+					expect(status.value).toBeFalse();
+				});
+			});
+
+			const service = new SignalRService(mockOptions, mockBuilder);
+			const status = service.getConnectionStatus();
+
+			status.value = true;
+			reconnectSpy();
 		});
 
 		it('should call reconnect callback on reconnect', () => {
@@ -284,7 +327,10 @@ describe('SignalRService', () => {
 
 			setTimeout(() => {
 				service.invoke('Command', message);
-				expect(mockConnection.invoke).toHaveBeenCalledWith('Command', message);
+				expect(mockConnection.invoke).toHaveBeenCalledOnceWith(
+					'Command',
+					message
+				);
 				done();
 			});
 		});
@@ -295,7 +341,24 @@ describe('SignalRService', () => {
 
 			service.init();
 			setTimeout(() => {
-				expect(mockConnection.invoke).toHaveBeenCalledWith('Command', message);
+				expect(mockConnection.invoke).toHaveBeenCalledOnceWith(
+					'Command',
+					message
+				);
+				done();
+			});
+		});
+
+		it('should invoke without a message', done => {
+			service.init();
+
+			setTimeout(() => {
+				service.invoke('Command');
+				expect(mockConnection.invoke).toHaveBeenCalledOnceWith('Command');
+				expect(mockConnection.invoke).not.toHaveBeenCalledWith(
+					'Command',
+					jasmine.anything
+				);
 				done();
 			});
 		});
@@ -314,7 +377,10 @@ describe('SignalRService', () => {
 
 			setTimeout(() => {
 				service.send('Command', message);
-				expect(mockConnection.send).toHaveBeenCalledWith('Command', message);
+				expect(mockConnection.send).toHaveBeenCalledOnceWith(
+					'Command',
+					message
+				);
 				done();
 			});
 		});
@@ -325,7 +391,24 @@ describe('SignalRService', () => {
 
 			service.init();
 			setTimeout(() => {
-				expect(mockConnection.send).toHaveBeenCalledWith('Command', message);
+				expect(mockConnection.send).toHaveBeenCalledOnceWith(
+					'Command',
+					message
+				);
+				done();
+			});
+		});
+
+		it('should send without a message', done => {
+			service.init();
+
+			setTimeout(() => {
+				service.send('Command');
+				expect(mockConnection.send).toHaveBeenCalledOnceWith('Command');
+				expect(mockConnection.send).not.toHaveBeenCalledWith(
+					'Command',
+					jasmine.anything
+				);
 				done();
 			});
 		});
@@ -371,7 +454,7 @@ describe('SignalRService', () => {
 		});
 
 		it('should be able to disable auto unsubscribe', () => {
-			const callback = () => { };
+			const callback = () => {};
 			mockOptions.automaticUnsubscribe = false;
 			service = new SignalRService(mockOptions, mockBuilder);
 			onBeforeUnmountSpy.and.callFake(((hook: () => any) => {
