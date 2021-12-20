@@ -6,7 +6,7 @@ SignalR plugin for Vue 3.
 
 ## Quick Start
 
-For more detailed instructions, check out the wiki at <https://github.com/quangdaon/vue-signalr/wiki>.
+> For more detailed instructions, check out the wiki at <https://github.com/quangdaon/vue-signalr/wiki>.
 
 ### Installation
 
