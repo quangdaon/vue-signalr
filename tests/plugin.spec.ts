@@ -27,7 +27,23 @@ describe('SignalR Vue Plugin', () => {
 	it('should provide the service', () => {
 		VueSignalR.install(mockApp, mockOptions);
 
-		expect(mockApp.provide).toHaveBeenCalledOnceWith(SignalRSymbol, mockSignalRService);
+		expect(mockApp.provide).toHaveBeenCalledOnceWith(
+			SignalRSymbol,
+			mockSignalRService
+		);
+	});
+
+	it('should allow multiple configurations', () => {
+		VueSignalR.install(mockApp, [
+			{ name: 'hub1', url: 'test-url' },
+			{ name: 'hub2', url: 'test-url' }
+		]);
+
+		expect(mockApp.provide).toHaveBeenCalledWith('hub1', mockSignalRService);
+
+		expect(mockApp.provide).toHaveBeenCalledWith('hub2', mockSignalRService);
+
+		expect(mockApp.provide).toHaveBeenCalledTimes(2);
 	});
 
 	it('should start the service', () => {
@@ -44,6 +60,6 @@ describe('SignalR Vue Plugin', () => {
 
 	it('should throw error if service is not injectable', () => {
 		(Vue.inject as jasmine.Spy).and.returnValue(undefined);
-		expect(() => useSignalR()).toThrowError('Failed to inject SignalR');
+		expect(() => useSignalR()).toThrowError();
 	});
 });

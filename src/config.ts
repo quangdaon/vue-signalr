@@ -48,3 +48,7 @@ export interface SignalRConfig {
 	 */
 	automaticUnsubscribe?: boolean;
 }
+
+export interface NamedSignalRConfig extends SignalRConfig {
+	name: string;
+}
