@@ -3,10 +3,10 @@ import {
 	HubConnectionBuilder,
 	IHttpConnectionOptions
 } from '@microsoft/signalr';
-import { onBeforeUnmount, ref } from 'vue';
+import { onBeforeUnmount, Ref, ref } from 'vue';
 import { ActionQueue } from './utils/action-queue';
-import { SignalRConfig } from './config';
-import { HubEventToken, HubCommandToken } from './tokens';
+import type { SignalRConfig } from './config';
+import type { HubEventToken, HubCommandToken } from './tokens';
 
 /**
  * A service to integrate SignalR with VueJS
@@ -34,7 +34,7 @@ export class SignalRService {
 	}
 
 	/** Start the connection; called automatically when the plugin is registered */
-	async init() {
+	async init(): Promise<void> {
 		try {
 			await this.connection.start();
 
@@ -49,7 +49,7 @@ export class SignalRService {
 	}
 
 	/** Set a callback to trigger when a connection to the hub is successfully established */
-	connectionSuccess(callback: () => void) {
+	connectionSuccess(callback: () => void): void {
 		if (this.initiated) {
 			callback();
 		} else {
@@ -86,7 +86,7 @@ export class SignalRService {
 	 * @param target The name or token of the command to send to
 	 * @param message The payload to send to the command
 	 */
-	send<T>(target: HubCommandToken<T>, message?: T) {
+	send<T>(target: HubCommandToken<T>, message?: T): void {
 		const send = () =>
 			message
 				? this.connection.send(target as string, message)
@@ -109,7 +109,7 @@ export class SignalRService {
 		target: HubEventToken<T>,
 		callback: (arg: T) => void,
 		autoUnsubscribe = this.options.automaticUnsubscribe
-	) {
+	): void {
 		this.connection.on(target as string, callback);
 		if (autoUnsubscribe) onBeforeUnmount(() => this.off(target, callback));
 	}
@@ -119,7 +119,7 @@ export class SignalRService {
 	 * @param target The name or token of the event to unsubscribe from
 	 * @param callback The specific callback to unsubscribe. If none is provided, all listeners on the target will be unsubscribed
 	 */
-	off<T>(target: HubEventToken<T>, callback?: (arg: T) => void) {
+	off<T>(target: HubEventToken<T>, callback?: (arg: T) => void): void {
 		if (callback) {
 			this.connection.off(target as string, callback);
 		} else {
@@ -128,7 +128,7 @@ export class SignalRService {
 	}
 
 	/** Get a reactive connection status */
-	getConnectionStatus() {
+	getConnectionStatus(): Ref<boolean> {
 		return this.connected;
 	}
 

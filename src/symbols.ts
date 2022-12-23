@@ -1,5 +1,5 @@
 import { SignalRService } from './service';
-import { InjectionKey } from 'vue';
+import type { InjectionKey } from 'vue';
 
 /** The injection key for the SignalR service */
 export const SignalRSymbol: InjectionKey<SignalRService> =
